@@ -1,12 +1,15 @@
 package rommie;
 
+import com.sun.xml.internal.ws.resources.SenderMessages;
 import org.jibble.pircbot.Colors;
+import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
 import org.jibble.pircbot.User;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.channels.Channel;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,6 +40,14 @@ public class Rommie extends PircBot {
             message = message.substring(CMD_PREFIX.length()); //Strips command prefix
 
             //----------------------------------------------------------------------------------------------------------
+
+            //Part the channel when commanded (SW only)
+            if (message.equalsIgnoreCase("part") & sender.equals("StoneWaves")) {
+                partChannel(channel, "As you command creator.");
+            }
+            else if(message.equalsIgnoreCase("part")){
+                sendMessage(channel, "You do not command me!");
+            }
 
             //Admin stuff (Currently unused)
             String[] AdminInput = {""};
@@ -121,6 +132,7 @@ public class Rommie extends PircBot {
 
 
 
+
         }
 
         //Testing line
@@ -134,19 +146,13 @@ public class Rommie extends PircBot {
         channelUserList.put(channel, users);
     }
 
-    //What happens when the bot joins a channel
+    //What happens when we join a channel
     @Override
     protected void onJoin(String channel, String sender, String login, String hostname){
         if(sender.equalsIgnoreCase("rommie")){
-
-            //sendMessage(channel, "Hi.");
-            //sendMessage(channel, "I'm Rommie your friendly neighbourhood bot");
-
-
             Channels.add(channel);
             File dir = new File(DataPath + channel);
             new File(String.valueOf(dir)).mkdirs();
-
             try {
                 findDirectory();
                 //new File(DataPath + channel + "\\Users.txt").createNewFile();
@@ -154,8 +160,20 @@ public class Rommie extends PircBot {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
+
+
+
+        if(sender.equalsIgnoreCase("kihira")){
+            sendMessage(channel, "<3");
+        }
+
+
+        if(sender.equalsIgnoreCase("StoneWaves")){
+            sendMessage("StoneWaves", "Creator!");
+        }
+
+        sendMessage(channel, "hi");
     }
 
     //What happens when the bot gets an invite
@@ -177,9 +195,19 @@ public class Rommie extends PircBot {
 
     }
 
-    //What happens when the bot gets a PM
+    //What happens when the we gets a PM
     protected void  onPrivateMessage(String sender, String login, String hostname, String message){
         sendMessage(sender, "I'm not authorised to talk to you.");
+    }
+
+    //Disconnect code
+    @Override
+    protected void onDisconnect() {
+        try {
+            reconnect();
+        } catch (IOException | IrcException e) {
+            e.printStackTrace();
+        }
     }
 
 }
