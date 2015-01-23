@@ -168,11 +168,11 @@ public class Rommie extends PircBot {
 
 
         if(sender.equalsIgnoreCase(creator)) {
-            sendMessage("StoneWaves", "Creator!");
+            sendMessage(channel, "Creator!");
         }
 
-        sendMessage(channel, "hi");
     }
+
 
 
     //What happens when the bot gets an invite
@@ -198,8 +198,10 @@ public class Rommie extends PircBot {
     protected void  onPrivateMessage(String sender, String login, String hostname, String message){
 
         if(sender.equalsIgnoreCase(creator)){
-            String out = keyboard.nextLine();
-                sendMessage("#Rommie", out);
+           sendMessage("#Rommie", message);
+        }
+        else{
+            sendMessage(sender, "I am not authorised to talk to you");
         }
 
         //sendMessage(sender, "I'm not authorised to talk to you.");
@@ -207,7 +209,20 @@ public class Rommie extends PircBot {
 
     @Override
     protected void onNickChange(String oldNick, String login, String hostname, String newNick) {
-        sendMessage(creator, "Nick change found");
+        //sendMessage(creator, "Nick change found");
+
+        if(newNick.equalsIgnoreCase("Othlon")) {
+            sendAction(newNick, "pounces on Othlon");
+        }
+
+        if(newNick.equalsIgnoreCase("kihira")){
+            sendMessage(newNick, "<3");
+        }
+
+
+        if(newNick.equalsIgnoreCase(creator)) {
+            sendMessage(creator, "Creator!");
+        }
     }
 
     //Disconnect code
