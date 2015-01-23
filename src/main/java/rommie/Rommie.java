@@ -15,12 +15,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Scanner;
 
 public class Rommie extends PircBot {
 
     private static final String DataPath = ".\\Data\\";
     private HashMap<String, User[]> channelUserList = new HashMap<>();
     private static final String CMD_PREFIX= ">";
+    private String creator = "StoneWaves";
+    Scanner keyboard = new Scanner(System.in);
 
     private ArrayList Channels = new ArrayList();
 
@@ -42,12 +45,6 @@ public class Rommie extends PircBot {
             //----------------------------------------------------------------------------------------------------------
 
             //Part the channel when commanded (SW only)
-            if (message.equalsIgnoreCase("part") & sender.equals("StoneWaves")) {
-                partChannel(channel, "As you command creator.");
-            }
-            else if(message.equalsIgnoreCase("part")){
-                sendMessage(channel, "You do not command me!");
-            }
 
             //Admin stuff (Currently unused)
             String[] AdminInput = {""};
@@ -137,9 +134,11 @@ public class Rommie extends PircBot {
 
         //Testing line
         //Message me when a message appears in chat
-        sendMessage("StoneWaves",  dateFormatTime.format(date) + " " + channel + " <" + sender + "> " + message);
+        sendMessage(creator,  dateFormatTime.format(date) + " " + channel + " <" + sender + "> " + message);
 
     }
+
+
 
     @Override
     protected void onUserList(String channel, User[] users) {
@@ -156,25 +155,29 @@ public class Rommie extends PircBot {
             try {
                 findDirectory();
                 //new File(DataPath + channel + "\\Users.txt").createNewFile();
+                sendMessage(channel, "hi");
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-
+        if(sender.equalsIgnoreCase("Othlon")) {
+            sendAction(channel, "pounces on Othlon");
+        }
 
         if(sender.equalsIgnoreCase("kihira")){
             sendMessage(channel, "<3");
         }
 
 
-        if(sender.equalsIgnoreCase("StoneWaves")){
+        if(sender.equalsIgnoreCase(creator)) {
             sendMessage("StoneWaves", "Creator!");
         }
 
         sendMessage(channel, "hi");
     }
+
 
     //What happens when the bot gets an invite
     protected void onInvite(String nick, String srcNick, String srcLogin, String srcHost, String channel) {
@@ -197,7 +200,18 @@ public class Rommie extends PircBot {
 
     //What happens when the we gets a PM
     protected void  onPrivateMessage(String sender, String login, String hostname, String message){
-        sendMessage(sender, "I'm not authorised to talk to you.");
+
+        if(sender.equalsIgnoreCase(creator)){
+            String out = keyboard.nextLine();
+                sendMessage("#Rommie", out);
+        }
+
+        //sendMessage(sender, "I'm not authorised to talk to you.");
+    }
+
+    @Override
+    protected void onNickChange(String oldNick, String login, String hostname, String newNick) {
+        sendMessage(creator, "Nick change found");
     }
 
     //Disconnect code
