@@ -39,6 +39,19 @@ public class Rommie extends PircBot {
         if (message.startsWith(CMD_PREFIX)) {
             message = message.substring(CMD_PREFIX.length()); //Strips command prefix
 
+            String[] arguments = message.split( " " );
+            String command = null;
+
+            if( arguments.length > 0 && arguments[0].length() > 0 )
+            {
+                command = arguments[0];
+            }
+
+            if( command == null )
+            {
+                return;
+            }
+
             //----------------------------------------------------------------------------------------------------------
 
             //Part the channel when commanded (SW only)
@@ -48,8 +61,7 @@ public class Rommie extends PircBot {
             String[] AdminOutput = {""};
 
             for (int index = 0; index < AdminInput.length; index++) {
-                if (message.equalsIgnoreCase(AdminInput[index]) & sender.equals("StoneWaves")) {
-
+                if (message.equalsIgnoreCase(AdminInput[index]) && sender.equals("StoneWaves")) {
                     if (message.equalsIgnoreCase(AdminInput[index])) {
 
                         String out = AdminOutput[index];
