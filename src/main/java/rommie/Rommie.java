@@ -2,6 +2,7 @@ package rommie;
 
 import org.jibble.pircbot.PircBot;
 
+import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ public class Rommie extends PircBot {
     String MessageChannel = "#Rommie";
     DateFormat dateFormatTime = new SimpleDateFormat("HH:mm:ss");
     Date date = new Date();
-
+    String[] commands = {"time", "tell", "join", "part", "disconnect", "fox", "table", "sfw", "nsfw", "kick", "ban", "prefix"};
 
 
     public Rommie() {
@@ -94,7 +95,7 @@ public class Rommie extends PircBot {
             //----------------------------------------------------------------------------------------------------------
 
             //Command to quit IRC
-            if( command.equalsIgnoreCase("disconnect" ) & sender.equalsIgnoreCase(creator) ) {
+            if( command.equalsIgnoreCase("disconnect") & sender.equalsIgnoreCase(creator) ) {
                 if( arguments.length > 1 ) {
                     sendMessage( channel, "Creator only command. Usage : !quit" );
                 }
@@ -137,7 +138,7 @@ public class Rommie extends PircBot {
             //Sets topic to SFW
             if( command.equalsIgnoreCase( "sfw" ) & channel.equalsIgnoreCase("#FetishCraft")) {
                 if( arguments.length > 1 ) {
-                    sendMessage( channel, "Usage : !sfw" );
+                    sendMessage( channel, "This is channel specific. Usage : !sfw" );
                 }
                 else
                 {
@@ -151,7 +152,7 @@ public class Rommie extends PircBot {
             //Sets topic to NSFW
             if( command.equalsIgnoreCase( "nsfw" ) & channel.equalsIgnoreCase("#FetishCraft")) {
                 if( arguments.length > 1 ) {
-                    sendMessage( channel, "Usage : !sfw" );
+                    sendMessage( channel, "This is channel specific. Usage : !sfw" );
                 }
                 else
                 {
@@ -196,6 +197,22 @@ public class Rommie extends PircBot {
                 }
                 else {
                     CMD_PREFIX = arguments[1];
+                }
+            }
+
+            //----------------------------------------------------------------------------------------------------------
+
+            //Lists all commands
+            if( command.equalsIgnoreCase( "help" ) & sender.equalsIgnoreCase(creator)) {
+                if( arguments.length > 1 ) {
+                    sendMessage( channel, "Usage : !help" );
+                }
+                else {
+                    sendMessage(sender, "Here is a list of all my commands.");
+                    sendMessage(sender, "The current command prefix is " + CMD_PREFIX);
+                    for(int i = 0; i < commands.length; i++){
+                        sendMessage(sender, commands[1]);
+                    }
                 }
             }
 
