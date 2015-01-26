@@ -20,6 +20,7 @@ public class Rommie extends PircBot {
     private static final String CMD_PREFIX= ">";
     private String creator = "StoneWaves";
     Scanner keyboard = new Scanner(System.in);
+    String directchannel = "#Rommie";
 
     private ArrayList Channels = new ArrayList();
 
@@ -79,12 +80,14 @@ public class Rommie extends PircBot {
             String[] inputMessage = {
                     "time",
                     "Rommie",
-                    "Duck"};
+                    "Duck",
+                    "flip table"};
 
             String[] outputMessage = {
                     "$sender : The time is now $time",
-                    "I'm a bot build by StoneWaves and based on the pircbot framework",
-                    "Quack, Quack"};
+                    "I'm a bot built by StoneWaves, based on the pircbot framework",
+                    "Quack, Quack",
+                    "(╯°□°）╯︵ ┻━┻"};
 
             for (int index = 0; index < inputMessage.length; index++) {
                 if (message.equalsIgnoreCase(inputMessage[index])) {
@@ -122,15 +125,22 @@ public class Rommie extends PircBot {
             }
 
             //----------------------------------------------------------------------------------------------------------
-
-
-
-
+//TODO FIX
+            if(message.equalsIgnoreCase("part")){
+                sendMessage(channel, "/part");
+            }
         }
+
+
+        if(message.contains("quack")  & channel.equalsIgnoreCase("#FetishCraft")){
+            sendMessage(channel, "Quack, Quack.");
+            sendMessage(channel, "I'm a duck!");
+        }
+
 
         //Testing line
         //Message me when a message appears in chat
-        sendMessage(creator,  dateFormatTime.format(date) + " " + channel + " <" + sender + "> " + message);
+        //sendMessage(creator,  dateFormatTime.format(date) + " " + channel + " <" + sender + "> " + message);
 
     }
 
@@ -151,18 +161,18 @@ public class Rommie extends PircBot {
             try {
                 findDirectory();
                 //new File(DataPath + channel + "\\Users.txt").createNewFile();
-                sendMessage(channel, "hi");
+                //sendMessage(channel, "hi");
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        if(sender.equalsIgnoreCase("Othlon")) {
+        if(hostname.contains("Othlon@")){
             sendAction(channel, "pounces on Othlon");
         }
 
-        if(sender.equalsIgnoreCase("kihira")){
+        if(sender.equalsIgnoreCase("kihira@")){
             sendMessage(channel, "<3");
         }
 
@@ -197,10 +207,16 @@ public class Rommie extends PircBot {
     //What happens when the we gets a PM
     protected void  onPrivateMessage(String sender, String login, String hostname, String message){
 
+
         if(sender.equalsIgnoreCase(creator)){
-           sendMessage("#Rommie", message);
+           if(message.contains("#")){
+               directchannel = message;
+           }
+            else {
+               sendMessage(directchannel, message);
+           }
         }
-        else{
+        else {
             sendMessage(sender, "I am not authorised to talk to you");
         }
 
@@ -211,10 +227,6 @@ public class Rommie extends PircBot {
     protected void onNickChange(String oldNick, String login, String hostname, String newNick) {
         //sendMessage(creator, "Nick change found");
 
-        if(newNick.equalsIgnoreCase("Othlon")) {
-            sendAction(newNick, "pounces on Othlon");
-        }
-
         if(newNick.equalsIgnoreCase("kihira")){
             sendMessage(newNick, "<3");
         }
@@ -222,6 +234,7 @@ public class Rommie extends PircBot {
 
         if(newNick.equalsIgnoreCase(creator)) {
             sendMessage(creator, "Creator!");
+            sendMessage(creator, "I'm still alive!");
         }
     }
 
