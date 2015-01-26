@@ -24,13 +24,31 @@ public class Rommie extends PircBot {
             String command = null;
 
             if (arguments.length > 0 && arguments[0].length() > 0) {
-                command = arguments[0];
+                command = arguments[0].toLowerCase().trim();
             }
 
             if (command == null) {
                 return;
             }
 
+            if( command.equals( "time" ) ) {
+                sendMessage(channel, new java.util.Date().toString() );
+            }
+
+            //this is just an example; is silly and pointless XP
+            //usage is "tell person message"
+            if( command.equals( "tell" ) ) {
+                if( arguments.length < 3 ) {
+                    sendMessage( channel, "Usage is tell person name." );
+                }
+                else
+                {
+                    String nick = arguments[1];
+                    int starting_point = message.indexOf( arguments[1] ) + arguments[1].length() + 1;
+                    String message_to_send = message.substring( starting_point );
+                    sendMessage( channel, arguments[1] + ": " + message_to_send );
+                }
+            }
         }
     }
 
