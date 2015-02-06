@@ -4,6 +4,7 @@ import org.jibble.pircbot.PircBot;
 
 import java.io.*;
 import java.lang.reflect.Array;
+import java.sql.Time;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,10 +22,15 @@ public class Rommie extends PircBot {
     ArrayList tasks = new ArrayList();
     int foxcount = 0;
     String[] commands = {"time", "tell", "join", "part", "disconnect", "fox", "count", "table", "sfw", "nsfw", "kick", "ban", "prefix", "task", "jobs", "remove"};
+    ArrayList Timeout = new ArrayList();
+    int count = 1;
 
 
-    public Rommie() {
+    public Rommie() throws FileNotFoundException {
         this.setName("Rommie");
+
+        //file writwer
+
     }
 
     public void onMessage(String channel, String sender, String login, String hostname, String message) {
@@ -98,9 +104,11 @@ public class Rommie extends PircBot {
                 if (arguments.length > 1) {
                     sendMessage(channel, "Creator only command. Usage : " + CMD_PREFIX + "quit");
                 } else {
-                    sendMessage(channel, "Disconnecting from IRC");
+                    getTimeouts(channel, sender, arguments); //write timeouts to file before closing
+                    // sendMessage(channel, "Disconnecting from IRC");
                     disconnect();
                     System.exit(0);
+
                 }
             }
 
@@ -267,6 +275,46 @@ public class Rommie extends PircBot {
                 }
             }
 
+            //----------------------------------------------------------------------------------------------------------
+
+            //Flail
+            if (command.equalsIgnoreCase("flail")) {
+                if (arguments.length > 1) {
+                    sendMessage(channel, "Usage : " + CMD_PREFIX + "flail");
+                } else {
+                    sendAction(channel, "flails");
+                }
+            }
+
+            //----------------------------------------------------------------------------------------------------------
+
+            //Log timeouts
+            if (command.equalsIgnoreCase("timeout")) {
+                    if (arguments.length > 1) {
+                        sendMessage(channel, "Usage : " + CMD_PREFIX + "timeout");
+                    }
+                    else{
+                        Timeout.add(new java.util.Date().toString());
+                        sendMessage(channel, "The date and time has been noted.");
+                        System.out.println("---------------------------------------------------------" + Timeout.get(Timeout.size() - 1));
+                        System.out.println("---------------------------------------------------------" + Timeout.size());
+
+                    }
+            }
+
+            //----------------------------------------------------------------------------------------------------------
+
+            //Get timeouts
+            if (command.equalsIgnoreCase("gettimeout")) {
+
+                getTimeouts(channel, sender, arguments);
+
+
+            }
+
+
+
+
 
         }//This brace closes the cmd loop
 
@@ -274,7 +322,7 @@ public class Rommie extends PircBot {
         //--------------------------------------------------------------------------------------------------------------
 
         //Quack like a duck
-        if (message.contains("quack")) {
+        if (message.contains("quack") | message.contains("Quack")) {
             sendMessage(channel, "Quack, Quack.");
             sendMessage(channel, "I'm a duck!");
         }
@@ -283,6 +331,33 @@ public class Rommie extends PircBot {
 
         if (channel.equalsIgnoreCase(MessageChannel)) {
             sendMessage(creator, dateFormatTime.format(date) + " " + channel + " <" + sender + "> " + message);
+        }
+    }
+
+    private void getTimeouts(String channel, String sender, String[] arguments) {
+        PrintWriter myOutFile;
+        try {
+            //Set up the file writer
+            myOutFile = new PrintWriter("C:\\Users\\christophera\\Dropbox\\FoxStone Timeouts\\Timeouts.txt");
+            count = count + 1;
+
+            //Command code
+            if (arguments.length > 1) {
+                sendMessage(channel, "Usage : " + CMD_PREFIX + "gettimeout");
+            }
+            else{
+                for(int i = 0; i < Timeout.size(); i++){
+                    myOutFile.print(sender + " logged a new timeout at " + Timeout.get(i) + "\n");
+                    System.out.println("---------------------------------------------------------" + Timeout.get(i));
+                }
+
+                sendMessage(channel, "The file has been made. Talk to StoneWaves for access.");
+            }
+
+            myOutFile.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
@@ -297,6 +372,7 @@ public class Rommie extends PircBot {
             }
         } else {
             sendMessage(sender, "I am not authorised to talk to you");
+            sendMessage(creator, "PM form "+ sender + " - " +message);
         }
     }
 
@@ -307,8 +383,8 @@ public class Rommie extends PircBot {
 
         //--------------------------------------------------------------------------------------------------------------
 
-        if (sender.equalsIgnoreCase(creator)) {
-            sendMessage(channel, "Creator!");
-        }
+        //if (sender.equalsIgnoreCase(creator)) {
+        //    sendMessage(channel, "Creator!");
+        //}
     }
 }
