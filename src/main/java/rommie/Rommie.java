@@ -3,14 +3,18 @@ package rommie;
 import org.jibble.pircbot.PircBot;
 
 import java.io.*;
-import java.lang.reflect.Array;
-import java.sql.Time;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.DateTimeException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Set;
 
 public class Rommie extends PircBot {
+    public static final String TIMEOUT_DIR = "C:\\Users\\christophera\\Dropbox\\FoxStone Timeouts\\";
+    public static final String TIMEOUT_FILE = "Timeouts.txt";
+    public static final String BOT_NAME = "CandiRommie";
 
     private static String CMD_PREFIX = ">";
     private String creator = "StoneWaves";
@@ -22,12 +26,9 @@ public class Rommie extends PircBot {
     ArrayList tasks = new ArrayList();
     int foxcount = 0;
     String[] commands = {"time", "tell", "join", "part", "disconnect", "fox", "count", "table", "sfw", "nsfw", "kick", "ban", "prefix", "task", "jobs", "remove"};
-    ArrayList Timeout = new ArrayList();
-    int count = 1;
-
 
     public Rommie() throws FileNotFoundException {
-        this.setName("Rommie");
+        this.setName(BOT_NAME);
 
         //file writwer
 
@@ -104,7 +105,6 @@ public class Rommie extends PircBot {
                 if (arguments.length > 1) {
                     sendMessage(channel, "Creator only command. Usage : " + CMD_PREFIX + "quit");
                 } else {
-                    getTimeouts(channel, sender, arguments); //write timeouts to file before closing
                     // sendMessage(channel, "Disconnecting from IRC");
                     disconnect();
                     System.exit(0);
@@ -294,23 +294,13 @@ public class Rommie extends PircBot {
                         sendMessage(channel, "Usage : " + CMD_PREFIX + "timeout");
                     }
                     else{
-                        Timeout.add(new java.util.Date().toString());
+                        saveTimeout( sender, new Date() );
                         sendMessage(channel, "The date and time has been noted.");
-                        System.out.println("---------------------------------------------------------" + Timeout.get(Timeout.size() - 1));
-                        System.out.println("---------------------------------------------------------" + Timeout.size());
-
                     }
             }
 
             //----------------------------------------------------------------------------------------------------------
 
-            //Get timeouts
-            if (command.equalsIgnoreCase("gettimeout")) {
-
-                getTimeouts(channel, sender, arguments);
-
-
-            }
 
 
 
@@ -334,30 +324,26 @@ public class Rommie extends PircBot {
         }
     }
 
-    private void getTimeouts(String channel, String sender, String[] arguments) {
-        PrintWriter myOutFile;
+    private void saveTimeout( String sender, Date date ) {
+        BufferedWriter myOutFile;
         try {
             //Set up the file writer
-            myOutFile = new PrintWriter("C:\\Users\\christophera\\Dropbox\\FoxStone Timeouts\\Timeouts.txt");
-            count = count + 1;
+            myOutFile = new BufferedWriter( new FileWriter( TIMEOUT_DIR + TIMEOUT_FILE, true ) );
 
-            //Command code
-            if (arguments.length > 1) {
-                sendMessage(channel, "Usage : " + CMD_PREFIX + "gettimeout");
-            }
-            else{
-                for(int i = 0; i < Timeout.size(); i++){
+                /*for(int i = 0; i < Timeout.size(); i++){
                     myOutFile.print(sender + " logged a new timeout at " + Timeout.get(i) + "\n");
                     System.out.println("---------------------------------------------------------" + Timeout.get(i));
-                }
+                }*/
 
-                sendMessage(channel, "The file has been made. Talk to StoneWaves for access.");
-            }
+            myOutFile.write(sender + " logged a new timeout at " + date + "\n" );
 
             myOutFile.close();
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        } catch( IOException f )
+        {
+            f.printStackTrace();
         }
     }
 
