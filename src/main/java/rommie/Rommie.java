@@ -199,6 +199,19 @@ public class Rommie extends PircBot {
                     }
             }
             //----------------------------------------------------------------------------------------------------------
+
+            //Timeout link
+            if (command.equalsIgnoreCase("timeoutlink")) {
+                if (arguments.length > 1) {
+                    sendMessage(channel, "Usage : " + CMD_PREFIX + "timeoutlink");
+                }
+                else{
+                    sendMessage(channel, "https://www.dropbox.com/s/ix1biwtoip75uy4/Timeouts.txt?dl=0");
+                }
+            }
+
+            //--------------------------------------------------------------------------------------------------------------
+
         }//This brace closes the cmd loop
 
 
