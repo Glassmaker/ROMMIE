@@ -5,27 +5,21 @@ import org.jibble.pircbot.PircBot;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.DateTimeException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Set;
 
 public class Rommie extends PircBot {
     public static final String TIMEOUT_DIR = "C:\\Users\\christophera\\Dropbox\\FoxStone Timeouts\\";
     public static final String TIMEOUT_FILE = "Timeouts.txt";
-    public static final String BOT_NAME = "CandiRommie";
+    public static final String BOT_NAME = "Rommie";
 
     private static String CMD_PREFIX = ">";
     private String creator = "StoneWaves";
-    String MessageChannel = "#Rommie";
-    private static final String DataPath = ".\\Files\\";
+    String MESSAGE_CHANNEL = "#Rommie";
+    private static final String DATA_PATH = ".\\Files\\";
     DateFormat dateFormatTime = new SimpleDateFormat("HH:mm:ss");
     Date date = new Date();
-    ArrayList ChannelTasks = new ArrayList();
-    ArrayList tasks = new ArrayList();
-    int foxcount = 0;
-    String[] commands = {"time", "tell", "join", "part", "disconnect", "fox", "count", "table", "sfw", "nsfw", "kick", "ban", "prefix", "task", "jobs", "remove"};
+    int FOX_COUNT = 0;
 
     public Rommie() throws FileNotFoundException {
         this.setName(BOT_NAME);
@@ -120,7 +114,7 @@ public class Rommie extends PircBot {
                     sendMessage(channel, "Usage : " + CMD_PREFIX + "fox <User>");
                 } else {
                     sendAction(channel, "throws a fox at " + arguments[1]);
-                    foxcount = foxcount + 1;
+                    FOX_COUNT = FOX_COUNT + 1;
                 }
             }
 
@@ -131,7 +125,7 @@ public class Rommie extends PircBot {
                 if (arguments.length > 1) {
                     sendMessage(channel, "Usage : " + CMD_PREFIX + "count");
                 } else {
-                   sendMessage(channel, "A total of " + foxcount + " foxes have been thrown.");
+                   sendMessage(channel, "A total of " + FOX_COUNT + " foxes have been thrown.");
                 }
             }
 
@@ -143,30 +137,6 @@ public class Rommie extends PircBot {
                     sendMessage(channel, "Usage : " + CMD_PREFIX + "table");
                 } else {
                     sendMessage(channel, "(╯°□°）╯︵ ┻━┻");
-                }
-            }
-
-            //----------------------------------------------------------------------------------------------------------
-
-            //Sets topic to SFW
-            if (command.equalsIgnoreCase("sfw") & channel.equalsIgnoreCase("#FetishCraft")) {
-                if (arguments.length > 1) {
-                    sendMessage(channel, "This is channel specific to #FetishCraft. Usage : " + CMD_PREFIX + "sfw");
-                } else {
-                    setTopic(channel, "Currently SFW | Don't judge and be friendly <3 | We might also make a mod one day");
-                    sendNotice(channel, "Channel is now SFW");
-                }
-            }
-
-            //----------------------------------------------------------------------------------------------------------
-
-            //Sets topic to NSFW
-            if (command.equalsIgnoreCase("nsfw") & channel.equalsIgnoreCase("#FetishCraft")) {
-                if (arguments.length > 1) {
-                    sendMessage(channel, "This is channel specific to #FetishCraft. Usage : " + CMD_PREFIX + "sfw");
-                } else {
-                    setTopic(channel, "NSFW Channel | Don't judge and be friendly <3 | We might also make a mod one day");
-                    sendNotice(channel, "Channel is now SFW");
                 }
             }
 
@@ -207,76 +177,6 @@ public class Rommie extends PircBot {
 
             //----------------------------------------------------------------------------------------------------------
 
-            //Lists all commands
-            if (command.equalsIgnoreCase("help")) {
-                if (arguments.length > 1) {
-                    sendMessage(channel, "Usage : " + CMD_PREFIX + "help");
-                } else {
-                    sendMessage(sender, "Here is a list of all my commands.");
-                    sendMessage(sender, "The current command prefix is " + CMD_PREFIX);
-                    for (int i = 0; i < commands.length; i++) {
-                        sendMessage(sender, commands[i]);
-                    }
-                    sendMessage(sender, "For more information on any command type " + CMD_PREFIX + "<command>");
-                }
-            }
-
-            //----------------------------------------------------------------------------------------------------------
-
-            //Add an item to the task list
-            if (command.equalsIgnoreCase("task")) {
-                if (arguments.length < 2) {
-                    sendMessage(channel, "Usage : " + CMD_PREFIX + "task <Item>");
-                } else {
-
-                    int starting_point = arguments[1].length() + 1;
-                    String task = message.substring(starting_point);
-
-                    ChannelTasks.add(channel);
-                    tasks.add(task);
-
-                }
-            }
-
-            //----------------------------------------------------------------------------------------------------------
-
-            //Add an item to the task list
-            if (command.equalsIgnoreCase("jobs")) {
-                if (arguments.length > 1) {
-                    sendMessage(channel, "Usage : " + CMD_PREFIX + "jobs");
-                } else {
-
-                    String jobs = "";
-
-                    sendMessage(channel, "These are the outstanding tasks.");
-
-                    for (int i = 0; tasks.size() > i; i++) {
-                        if (ChannelTasks.get(i).equals(channel)) {
-                            jobs = (String.valueOf(i + ". " + tasks.get(i)));
-                            sendMessage(channel, jobs);
-                        }
-                    }
-                }
-            }
-
-            //----------------------------------------------------------------------------------------------------------
-
-            //Add an item to the task list
-            if (command.equalsIgnoreCase("remove")) {
-                if (arguments.length < 1 | arguments.length > 1 ) {
-                    sendMessage(channel, "Usage : " + CMD_PREFIX + "remove <task id>");
-                } else {
-                    if (ChannelTasks.get(Integer.parseInt(arguments[1])).equals(channel)) {
-                        tasks.remove(arguments[1]);
-                        ChannelTasks.remove(arguments[1]);
-                    } else {
-                        sendMessage(channel, "This is not a valid id.");
-                    }
-                }
-            }
-
-            //----------------------------------------------------------------------------------------------------------
-
             //Flail
             if (command.equalsIgnoreCase("flail")) {
                 if (arguments.length > 1) {
@@ -294,18 +194,11 @@ public class Rommie extends PircBot {
                         sendMessage(channel, "Usage : " + CMD_PREFIX + "timeout");
                     }
                     else{
-                        saveTimeout( sender, new Date() );
+                        saveTimeout(sender, new Date());
                         sendMessage(channel, "The date and time has been noted.");
                     }
             }
-
             //----------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
         }//This brace closes the cmd loop
 
 
@@ -319,7 +212,7 @@ public class Rommie extends PircBot {
 
         //--------------------------------------------------------------------------------------------------------------
 
-        if (channel.equalsIgnoreCase(MessageChannel)) {
+        if (channel.equalsIgnoreCase(MESSAGE_CHANNEL)) {
             sendMessage(creator, dateFormatTime.format(date) + " " + channel + " <" + sender + "> " + message);
         }
     }
@@ -329,16 +222,8 @@ public class Rommie extends PircBot {
         try {
             //Set up the file writer
             myOutFile = new BufferedWriter( new FileWriter( TIMEOUT_DIR + TIMEOUT_FILE, true ) );
-
-                /*for(int i = 0; i < Timeout.size(); i++){
-                    myOutFile.print(sender + " logged a new timeout at " + Timeout.get(i) + "\n");
-                    System.out.println("---------------------------------------------------------" + Timeout.get(i));
-                }*/
-
             myOutFile.write(sender + " logged a new timeout at " + date + "\n" );
-
             myOutFile.close();
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch( IOException f )
@@ -347,14 +232,13 @@ public class Rommie extends PircBot {
         }
     }
 
-
     //Chat relay from PM
     protected void onPrivateMessage(String sender, String login, String hostname, String message) {
         if (sender.equalsIgnoreCase(creator)) {
             if (message.startsWith("#")) {
-                MessageChannel = message;
+                MESSAGE_CHANNEL = message;
             } else {
-                sendMessage(MessageChannel, message);
+                sendMessage(MESSAGE_CHANNEL, message);
             }
         } else {
             sendMessage(sender, "I am not authorised to talk to you");
@@ -364,13 +248,7 @@ public class Rommie extends PircBot {
 
     protected void onJoin(String channel, String sender, String login, String hostname) {
 
-        new File(DataPath + channel).mkdirs();
-        new File(DataPath).mkdirs();
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        //if (sender.equalsIgnoreCase(creator)) {
-        //    sendMessage(channel, "Creator!");
-        //}
+        new File(DATA_PATH + channel).mkdirs();
+        new File(DATA_PATH).mkdirs();
     }
 }
