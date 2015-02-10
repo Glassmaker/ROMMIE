@@ -31,6 +31,7 @@ public class Rommie extends PircBot {
     Date DATE = new Date();
     int FOX_COUNT = 0;
 
+    //Main Rommie method
     public Rommie(){
         this.setName(BOT_NAME);
         this.setMessageDelay(1000);
@@ -267,7 +268,7 @@ public class Rommie extends PircBot {
 
             //----------------------------------------------------------------------------------------------------------
 
-            if (command.equalsIgnoreCase("google") && sender.equals(CREATOR)) {
+            if (command.equalsIgnoreCase("google")){
                 if (arguments.length < 2) {
                     sendMessage(channel, "Usage : " + CMD_PREFIX + "google <Search Phrase>");
                 } else {
@@ -280,18 +281,24 @@ public class Rommie extends PircBot {
                     Reader reader = new InputStreamReader(url.openStream(), charset);
                     GoogleResults results = new Gson().fromJson(reader, GoogleResults.class);
 
-                    // Show title and URL of each results
-                    String ResultTitle =  results.getResponseData().getResults().get(0).getTitle();
-                    String ResultURL = results.getResponseData().getResults().get(0).getUrl();
-                    String ResultContent =  results.getResponseData().getResults().get(0).getContent();
 
-                    //TODO Returns results with tags (need to remove)
-                    String ResultOutput = sender + " : " + ResultURL + " -- " + ResultTitle + " : " + ResultContent;
+                    if(results.getResponseData().getResults().size() == 0){
+                        sendMessage(channel, sender + " : No results were found for your search of " + query);
+                    }
+                    else {
+                        // Show title and URL of each results
+                        String ResultTitle = results.getResponseData().getResults().get(0).getTitle();
+                        String ResultURL = results.getResponseData().getResults().get(0).getUrl();
+                        String ResultContent = results.getResponseData().getResults().get(0).getContent();
 
-                    sendMessage(channel, ResultOutput);
+                        //TODO Returns results with tags (need to remove)
+                        String ResultOutput = sender + " : " + ResultURL + " -- " + ResultTitle + " : " + ResultContent;
+
+                        sendMessage(channel, ResultOutput);
+                    }
                 }
                 log("Google Search command issued");
-            }
+        }
 
 
 
@@ -317,7 +324,7 @@ public class Rommie extends PircBot {
         }
     }
 
-    //Chat relay from PM
+    //Chat relay for PM's
     //Called when the bot gets a PM
     protected void onPrivateMessage(String sender, String login, String hostname, String message) {
         if (sender.equalsIgnoreCase(CREATOR)) {
@@ -338,13 +345,16 @@ public class Rommie extends PircBot {
         //Not sure what to do with these yet
         new File(DATA_PATH + channel).mkdirs();
         new File(DATA_PATH).mkdirs();
-        sendMessage(channel, "The current command prefix is " + CMD_PREFIX);
+
+        if(sender.equals(BOT_NAME)) {
+            //sendMessage(channel, "The current command prefix is " + CMD_PREFIX);
+        }
     }
 
     //Go mad with power on OP
     protected void onOp(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient){
         if(recipient.equals(BOT_NAME)){
-            sendAction(channel, "goes mad with power");
+            //sendAction(channel, "goes mad with power");
         }
     }
 
