@@ -28,6 +28,7 @@ public class Rommie extends PircBot {
 
     public Rommie(){
         this.setName(BOT_NAME);
+        this.setMessageDelay(1000);
     }
 
     //What happens when someone sends a message in a channel
@@ -237,19 +238,6 @@ public class Rommie extends PircBot {
                     sendMessage(channel, "https://www.dropbox.com/s/ix1biwtoip75uy4/Timeouts.txt?dl=0");
                 }
                 log("Timeout link command issued");
-            }
-
-            //--------------------------------------------------------------------------------------------------------------
-
-            //lag
-            if (command.equalsIgnoreCase("lag")) {
-                if (arguments.length > 1) {
-                    sendMessage(channel, "Usage : " + CMD_PREFIX + "lag");
-                }
-                else{
-                    sendMessage(channel, String.valueOf(getMessageDelay()));
-                }
-                log("Lag command issued");
             }
 
             //----------------------------------------------------------------------------------------------------------
