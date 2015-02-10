@@ -1,10 +1,15 @@
 package rommie;
 
+import com.google.gson.Gson;
 import org.jibble.pircbot.Colors;
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
+import rommie.modules.GoogleResults.GoogleResults;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,7 +40,11 @@ public class Rommie extends PircBot {
     public void onMessage(String channel, String sender, String login, String hostname, String message) {
 
         //Goes and sees if we have a command that matches the message structure
-        commandCheck(channel, sender, login, hostname, message);
+        try {
+            commandCheck(channel, sender, login, hostname, message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -55,7 +64,7 @@ public class Rommie extends PircBot {
 
     //List of valid commands
     //Called from onMessage
-    public void commandCheck(String channel, String sender, String login, String hostname, String message){
+    public void commandCheck(String channel, String sender, String login, String hostname, String message) throws IOException {
         if (message.startsWith(CMD_PREFIX)) {
             message = message.substring(CMD_PREFIX.length()); //Strips command prefix
 
@@ -248,13 +257,42 @@ public class Rommie extends PircBot {
                 if (arguments.length < 2) {
                     sendMessage(channel, "Usage : " + CMD_PREFIX + "topic <Topic>");
                 } else {
-                    int starting_point = message.indexOf(arguments[1]) + arguments[1].length() + 1;
+                    int starting_point = message.indexOf(arguments[1]) + 1;
                     String message_to_send = message.substring(starting_point);
 
                     setTopic(channel, arguments[1] + " " + message_to_send);
                 }
                 log("Topic command issued");
             }
+
+            //----------------------------------------------------------------------------------------------------------
+
+            if (command.equalsIgnoreCase("google") && sender.equals(CREATOR)) {
+                if (arguments.length < 2) {
+                    sendMessage(channel, "Usage : " + CMD_PREFIX + "google <Search Phrase>");
+                } else {
+                    String address = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=";
+                    int starting_point = message.indexOf(arguments[1]);
+                    String query = message.substring(starting_point);
+                    String charset = "UTF-8";
+
+                    URL url = new URL(address + URLEncoder.encode(query, charset));
+                    Reader reader = new InputStreamReader(url.openStream(), charset);
+                    GoogleResults results = new Gson().fromJson(reader, GoogleResults.class);
+
+                    // Show title and URL of each results
+                    String ResultTitle =  results.getResponseData().getResults().get(0).getTitle();
+                    String ResultURL = results.getResponseData().getResults().get(0).getUrl();
+                    String ResultContent =  results.getResponseData().getResults().get(0).getContent();
+
+                    //TODO Returns results with tags (need to remove)
+                    String ResultOutput = sender + " : " + ResultURL + " -- " + ResultTitle + " : " + ResultContent;
+
+                    sendMessage(channel, ResultOutput);
+                }
+                log("Google Search command issued");
+            }
+
 
 
             //--------------------------------------------------------------------------------------------------------------
