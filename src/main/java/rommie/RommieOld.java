@@ -152,7 +152,7 @@ public class RommieOld extends PircBot {
 
         //Testing line
         //Message me when a message appears in chat
-        //sendMessage(creator,  dateFormatTime.format(date) + " " + channel + " <" + sender + "> " + message);
+        //sendMessage(creator,  dateFormatTime.format(DATE) + " " + channel + " <" + sender + "> " + message);
 
     }
 

@@ -1,36 +1,60 @@
 package rommie;
 
+import org.jibble.pircbot.Colors;
+import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
 
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.Properties;
 
 public class Rommie extends PircBot {
-    public static final String TIMEOUT_DIR = "C:\\Users\\christophera\\Dropbox\\FoxStone Timeouts\\";
-    public static final String TIMEOUT_FILE = "Timeouts.txt";
-    public static final String BOT_NAME = "Rommie";
 
+    //Load in properties from config file
+    private static final String TIMEOUT_DIR = RommieMain.config.getProperty("TIMEOUT_DIR");
+    private static final String TIMEOUT_FILE = RommieMain.config.getProperty("TIMEOUT_FILE");
+    private static final String BOT_NAME = RommieMain.config.getProperty("BOT_NAME");
+    private static final String CREATOR = RommieMain.config.getProperty("CREATOR");
+    private static final String DATA_PATH = RommieMain.config.getProperty("DATA_PATH");
+
+    //Locally set and changed variables
     private static String CMD_PREFIX = ">";
-    private String creator = "StoneWaves";
     String MESSAGE_CHANNEL = "#Rommie";
-    private static final String DATA_PATH = ".\\Files\\";
     DateFormat dateFormatTime = new SimpleDateFormat("HH:mm:ss");
-    Date date = new Date();
+    Date DATE = new Date();
     int FOX_COUNT = 0;
 
-    public Rommie() throws FileNotFoundException {
+    public Rommie(){
         this.setName(BOT_NAME);
-
-        //file writwer
-
     }
 
+    //What happens when someone sends a message in a channel
     public void onMessage(String channel, String sender, String login, String hostname, String message) {
 
+        //Goes and sees if we have a command that matches the message structure
+        commandCheck(channel, sender, login, hostname, message);
 
+        //--------------------------------------------------------------------------------------------------------------
+
+        //Quack like a duck
+        if (message.contains("quack") | message.contains("Quack")) {
+            sendMessage(channel, "Quack, Quack.");
+            sendMessage(channel, "I'm a duck!");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        //Send message to CREATOR from specified channel
+        if (channel.equalsIgnoreCase(MESSAGE_CHANNEL)) {
+            sendMessage(CREATOR, dateFormatTime.format(DATE) + " " + channel + " <" + sender + "> " + message);
+        }
+    }
+
+    //List of valid commands
+    //Called from onMessage
+    public void commandCheck(String channel, String sender, String login, String hostname, String message){
         if (message.startsWith(CMD_PREFIX)) {
             message = message.substring(CMD_PREFIX.length()); //Strips command prefix
 
@@ -51,6 +75,7 @@ public class Rommie extends PircBot {
 
             if (command.equalsIgnoreCase("time")) {
                 sendMessage(channel, new java.util.Date().toString());
+                log("Time command issued");
             }
 
             //----------------------------------------------------------------------------------------------------------
@@ -66,44 +91,47 @@ public class Rommie extends PircBot {
                     String message_to_send = message.substring(starting_point);
                     sendMessage(channel, arguments[1] + ": " + message_to_send);
                 }
+                log("Tell command issued");
             }
 
             //----------------------------------------------------------------------------------------------------------
 
             //Command to join a channel
-            if (command.equalsIgnoreCase("join") & sender.equalsIgnoreCase(creator)) {
+            if (command.equalsIgnoreCase("join") & sender.equalsIgnoreCase(CREATOR)) {
                 if (arguments.length < 1) {
                     sendMessage(channel, "Creator only command. Usage : " + CMD_PREFIX + "join <ChannelName>");
                 } else {
                     joinChannel(arguments[1]);
                     sendMessage(channel, "Joined " + arguments[1]);
                 }
+                log("Join command issued");
             }
 
             //----------------------------------------------------------------------------------------------------------
 
             //Command to part a channel
-            if (command.equalsIgnoreCase("part") & sender.equalsIgnoreCase(creator)) {
+            if (command.equalsIgnoreCase("part") & sender.equalsIgnoreCase(CREATOR)) {
                 if (arguments.length > 1) {
                     sendMessage(channel, "Creator only command. Usage : " + CMD_PREFIX + "part");
                 } else {
                     sendMessage(channel, "Leaving channel as commanded");
                     partChannel(channel);
                 }
+                log("Part command issued");
             }
 
             //----------------------------------------------------------------------------------------------------------
 
             //Command to quit IRC
-            if (command.equalsIgnoreCase("disconnect") & sender.equalsIgnoreCase(creator)) {
+            if (command.equalsIgnoreCase("disconnect") & sender.equalsIgnoreCase(CREATOR)) {
                 if (arguments.length > 1) {
-                    sendMessage(channel, "Creator only command. Usage : " + CMD_PREFIX + "quit");
+                    sendMessage(channel, "Creator only command. Usage : " + CMD_PREFIX + "disconnect");
                 } else {
-                    // sendMessage(channel, "Disconnecting from IRC");
-                    disconnect();
+                    sendMessage(channel, "Disconnecting from IRC");
                     System.exit(0);
 
                 }
+                log("Disconnect command issued");
             }
 
             //----------------------------------------------------------------------------------------------------------
@@ -116,17 +144,7 @@ public class Rommie extends PircBot {
                     sendAction(channel, "throws a fox at " + arguments[1]);
                     FOX_COUNT = FOX_COUNT + 1;
                 }
-            }
-
-            //----------------------------------------------------------------------------------------------------------
-
-            //Lists all commands
-            if (command.equalsIgnoreCase("count")) {
-                if (arguments.length > 1) {
-                    sendMessage(channel, "Usage : " + CMD_PREFIX + "count");
-                } else {
-                   sendMessage(channel, "A total of " + FOX_COUNT + " foxes have been thrown.");
-                }
+                log("Fox throwing command issued");
             }
 
             //----------------------------------------------------------------------------------------------------------
@@ -138,41 +156,49 @@ public class Rommie extends PircBot {
                 } else {
                     sendMessage(channel, "(╯°□°）╯︵ ┻━┻");
                 }
+                log("Table flip command issued");
             }
 
             //----------------------------------------------------------------------------------------------------------
 
             //Kicks a user
-            if (command.equalsIgnoreCase("kick") & sender.equalsIgnoreCase(creator)) {
+            if (command.equalsIgnoreCase("kick") & sender.equalsIgnoreCase(CREATOR)) {
                 if (arguments.length < 2 | arguments.length > 2) {
                     sendMessage(channel, "Creator only command. Usage : " + CMD_PREFIX + "kick <User>");
                 } else {
                     kick(channel, arguments[1]);
                     sendMessage(channel, arguments[1] + " was kicked by " + sender);
                 }
+                log("Kick command issued");
             }
 
             //----------------------------------------------------------------------------------------------------------
 
             //Bans a user
-            if (command.equalsIgnoreCase("ban") & sender.equalsIgnoreCase(creator)) {
+            if (command.equalsIgnoreCase("ban") & sender.equalsIgnoreCase(CREATOR)) {
                 if (arguments.length < 2 | arguments.length > 2) {
                     sendMessage(channel, "Creator only command. Usage : " + CMD_PREFIX + "ban <User>");
                 } else {
                     ban(channel, arguments[1]);
                     sendMessage(channel, arguments[1] + " was banned from " + channel + " by " + sender);
                 }
+                log("Ban command issued");
             }
 
             //----------------------------------------------------------------------------------------------------------
 
             //Sets the command prefix
-            if (command.equalsIgnoreCase("prefix") & sender.equalsIgnoreCase(creator)) {
+            if (command.equalsIgnoreCase("prefix") & sender.equalsIgnoreCase(CREATOR)) {
                 if (arguments.length < 2 | arguments.length > 2) {
                     sendMessage(channel, "Creator only command. Usage : " + CMD_PREFIX + "prefix <character>");
                 } else {
                     CMD_PREFIX = arguments[1];
+                    String[] channels = getChannels();
+                    for(int x=0; x < channels.length; x++) {
+                        sendMessage(channel, "My command prefix has been changed to " + CMD_PREFIX);
+                    }
                 }
+                log("Command prefix change issued");
             }
 
             //----------------------------------------------------------------------------------------------------------
@@ -184,19 +210,21 @@ public class Rommie extends PircBot {
                 } else {
                     sendAction(channel, "flails");
                 }
+                log("Flail command issued");
             }
 
             //----------------------------------------------------------------------------------------------------------
 
             //Log timeouts
             if (command.equalsIgnoreCase("timeout")) {
-                    if (arguments.length > 1) {
-                        sendMessage(channel, "Usage : " + CMD_PREFIX + "timeout");
-                    }
-                    else{
-                        saveTimeout(sender, new Date());
-                        sendMessage(channel, "The date and time has been noted.");
-                    }
+                if (arguments.length > 1) {
+                    sendMessage(channel, "Usage : " + CMD_PREFIX + "timeout");
+                }
+                else{
+                    saveTimeout(sender, new Date());
+                    sendMessage(channel, "The date and time has been noted.");
+                }
+                log("Timeout command issued");
             }
             //----------------------------------------------------------------------------------------------------------
 
@@ -208,28 +236,46 @@ public class Rommie extends PircBot {
                 else{
                     sendMessage(channel, "https://www.dropbox.com/s/ix1biwtoip75uy4/Timeouts.txt?dl=0");
                 }
+                log("Timeout link command issued");
             }
 
             //--------------------------------------------------------------------------------------------------------------
 
+            //lag
+            if (command.equalsIgnoreCase("lag")) {
+                if (arguments.length > 1) {
+                    sendMessage(channel, "Usage : " + CMD_PREFIX + "lag");
+                }
+                else{
+                    sendMessage(channel, String.valueOf(getMessageDelay()));
+                }
+                log("Lag command issued");
+            }
+
+            //----------------------------------------------------------------------------------------------------------
+
+            //Changes the topic of a Channel
+            //This is really hacky and needs rewritten
+            if (command.equalsIgnoreCase("topic") && sender.equals(CREATOR)) {
+                if (arguments.length < 2) {
+                    sendMessage(channel, "Usage : " + CMD_PREFIX + "topic <Topic>");
+                } else {
+                    int starting_point = message.indexOf(arguments[1]) + arguments[1].length() + 1;
+                    String message_to_send = message.substring(starting_point);
+
+                    setTopic(channel, arguments[1] + " " + message_to_send);
+                }
+                log("Topic command issued");
+            }
+
+
+            //--------------------------------------------------------------------------------------------------------------
+
         }//This brace closes the cmd loop
-
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        //Quack like a duck
-        if (message.contains("quack") | message.contains("Quack")) {
-            sendMessage(channel, "Quack, Quack.");
-            sendMessage(channel, "I'm a duck!");
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        if (channel.equalsIgnoreCase(MESSAGE_CHANNEL)) {
-            sendMessage(creator, dateFormatTime.format(date) + " " + channel + " <" + sender + "> " + message);
-        }
     }
 
+    //Log timeouts to file
+    //Called when a timeout is logged
     private void saveTimeout( String sender, Date date ) {
         BufferedWriter myOutFile;
         try {
@@ -246,8 +292,9 @@ public class Rommie extends PircBot {
     }
 
     //Chat relay from PM
+    //Called when the bot gets a PM
     protected void onPrivateMessage(String sender, String login, String hostname, String message) {
-        if (sender.equalsIgnoreCase(creator)) {
+        if (sender.equalsIgnoreCase(CREATOR)) {
             if (message.startsWith("#")) {
                 MESSAGE_CHANNEL = message;
             } else {
@@ -255,13 +302,52 @@ public class Rommie extends PircBot {
             }
         } else {
             sendMessage(sender, "I am not authorised to talk to you");
-            sendMessage(creator, "PM form "+ sender + " - " +message);
+            sendMessage(CREATOR, "PM form "+ sender + " - " +message);
         }
     }
 
+    //What to do when joining a channel
     protected void onJoin(String channel, String sender, String login, String hostname) {
 
+        //Not sure what to do with these yet
         new File(DATA_PATH + channel).mkdirs();
         new File(DATA_PATH).mkdirs();
+        sendMessage(channel, "The current command prefix is " + CMD_PREFIX);
+    }
+
+    //Go mad with power on OP
+    protected void onOp(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient){
+        if(recipient.equals(BOT_NAME)){
+            sendAction(channel, "goes mad with power");
+        }
+    }
+
+    //Join a channel on invite by CREATOR
+    public void onInvite(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String channel){
+        if(sourceNick.equals(CREATOR) && targetNick.equals(BOT_NAME)){
+            joinChannel(channel);
+        }
+        else{
+            sendMessage(sourceNick, "I'm sorry but I can't do that.");
+        }
+    }
+
+    //What is done when we get kicked
+    public void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason){
+        if(recipientNick.equalsIgnoreCase(BOT_NAME)) {
+            sendMessage(CREATOR, "I was kicked by " + kickerNick + " from " + channel + " for: " + Colors.PURPLE + reason);
+            joinChannel(channel);
+        }
+    }
+
+    //Try to reconnect when we disconnect
+    protected void onDisconnect(){
+        try {
+            reconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (IrcException e) {
+            e.printStackTrace();
+        }
     }
 }
