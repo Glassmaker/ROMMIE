@@ -2,7 +2,6 @@ package rommie;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Properties;
 
 public class RommieMain {
@@ -34,8 +33,8 @@ public class RommieMain {
         // Join channels.
         bot.joinChannel("#StoneWaves");
         bot.joinChannel("#Rommie");
-        bot.joinChannel("#FetishCraft");
-        bot.joinChannel("#Kihira");
+        //bot.joinChannel("#FetishCraft");
+        //bot.joinChannel("#Kihira");
 
     }
 }

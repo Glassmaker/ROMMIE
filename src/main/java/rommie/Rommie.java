@@ -7,13 +7,11 @@ import org.jibble.pircbot.PircBot;
 import rommie.modules.GoogleResults.GoogleResults;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Properties;
 
 public class Rommie extends PircBot {
 
@@ -23,6 +21,7 @@ public class Rommie extends PircBot {
     private static final String BOT_NAME = RommieMain.config.getProperty("BOT_NAME");
     private static final String CREATOR = RommieMain.config.getProperty("CREATOR");
     private static final String DATA_PATH = RommieMain.config.getProperty("DATA_PATH");
+    private static final String POTATO = RommieMain.config.getProperty("DISCONNECT_PASSWORD");
 
     //Locally set and changed variables
     private static String CMD_PREFIX = ">";
@@ -42,7 +41,7 @@ public class Rommie extends PircBot {
 
         //Goes and sees if we have a command that matches the message structure
         try {
-            commandCheck(channel, sender, login, hostname, message);
+            commandCheck(channel, sender, message);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -65,7 +64,7 @@ public class Rommie extends PircBot {
 
     //List of valid commands
     //Called from onMessage
-    public void commandCheck(String channel, String sender, String login, String hostname, String message) throws IOException {
+    public void commandCheck(String channel, String sender, String message) throws IOException {
         if (message.startsWith(CMD_PREFIX)) {
             message = message.substring(CMD_PREFIX.length()); //Strips command prefix
 
@@ -97,7 +96,6 @@ public class Rommie extends PircBot {
                 if (arguments.length < 3) {
                     sendMessage(channel, "Usage : " + CMD_PREFIX + "tell <User> <Message>");
                 } else {
-                    String nick = arguments[1];
                     int starting_point = message.indexOf(arguments[1]) + arguments[1].length() + 1;
                     String message_to_send = message.substring(starting_point);
                     sendMessage(channel, arguments[1] + ": " + message_to_send);
@@ -129,20 +127,6 @@ public class Rommie extends PircBot {
                     partChannel(channel);
                 }
                 log("Part command issued");
-            }
-
-            //----------------------------------------------------------------------------------------------------------
-
-            //Command to quit IRC
-            if (command.equalsIgnoreCase("disconnect") & sender.equalsIgnoreCase(CREATOR)) {
-                if (arguments.length > 1) {
-                    sendMessage(channel, "Creator only command. Usage : " + CMD_PREFIX + "disconnect");
-                } else {
-                    sendMessage(channel, "Disconnecting from IRC");
-                    System.exit(0);
-
-                }
-                log("Disconnect command issued");
             }
 
             //----------------------------------------------------------------------------------------------------------
@@ -205,7 +189,7 @@ public class Rommie extends PircBot {
                 } else {
                     CMD_PREFIX = arguments[1];
                     String[] channels = getChannels();
-                    for(int x=0; x < channels.length; x++) {
+                    for (String ignored : channels) {
                         sendMessage(channel, "My command prefix has been changed to " + CMD_PREFIX);
                     }
                 }
@@ -298,11 +282,21 @@ public class Rommie extends PircBot {
                     }
                 }
                 log("Google Search command issued");
-        }
+            }
 
+            //----------------------------------------------------------------------------------------------------------
 
+            //Disconnect Command
+            if (message.equalsIgnoreCase(CMD_PREFIX + "disconnect") && sender.equalsIgnoreCase(CREATOR)) {
+                String[] channels = getChannels();
+                for (int i = 0; i < channels.length; i++) {
+                    sendMessage(channels[i], "Quitting IRC ");
+                }
+                log("Disconnect command issued");
+                System.exit(0);
+            }
 
-            //--------------------------------------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------------------------------------
 
         }//This brace closes the cmd loop
     }
@@ -316,28 +310,51 @@ public class Rommie extends PircBot {
             myOutFile = new BufferedWriter( new FileWriter( TIMEOUT_DIR + TIMEOUT_FILE, true ) );
             myOutFile.write(sender + " logged a new timeout at " + date + "\n" );
             myOutFile.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch( IOException f )
         {
             f.printStackTrace();
         }
     }
 
-    //Chat relay for PM's
     //Called when the bot gets a PM
     protected void onPrivateMessage(String sender, String login, String hostname, String message) {
+
+        //Command to quit IRC
+        String[] arguments = message.split(" ");
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        //Chat relay for PM's
         if (sender.equalsIgnoreCase(CREATOR)) {
+            //Channel switch
             if (message.startsWith("#")) {
                 MESSAGE_CHANNEL = message;
-            } else {
+            }
+            //Kill command
+            else if (message.startsWith(CMD_PREFIX + "disconnect") && sender.equalsIgnoreCase(CREATOR) && arguments[1].equalsIgnoreCase(POTATO)){
+                String[] channels = getChannels();
+                for (int i = 0; i < channels.length; i++) {
+                    sendMessage(channels[i], "Quitting IRC ");
+                }
+                log("Disconnect command issued");
+                System.exit(0);
+            }
+            //Relay
+            else {
                 sendMessage(MESSAGE_CHANNEL, message);
             }
-        } else {
+        }
+
+        else {
             sendMessage(sender, "I am not authorised to talk to you");
             sendMessage(CREATOR, "PM form "+ sender + " - " +message);
         }
+
+
+
+
     }
+
 
     //What to do when joining a channel
     protected void onJoin(String channel, String sender, String login, String hostname) {
@@ -380,9 +397,7 @@ public class Rommie extends PircBot {
     protected void onDisconnect(){
         try {
             reconnect();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (IrcException e) {
+        } catch (IOException | IrcException e) {
             e.printStackTrace();
         }
     }
