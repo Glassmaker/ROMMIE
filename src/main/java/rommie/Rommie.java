@@ -431,12 +431,13 @@ public class Rommie extends PircBot {
         }
     }
 
+    //Makes sure creator name is valid
+    //Start with StoneWaves
     protected void onNickChange(String oldNick, String login, String hostname, String newNick){
         if(oldNick.equalsIgnoreCase(CREATOR)){
             CREATOR = newNick;
         }
     }
-
 
     //Try to reconnect when we disconnect
     protected void onDisconnect(){
