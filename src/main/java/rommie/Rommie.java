@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import org.jibble.pircbot.Colors;
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
+import org.jibble.pircbot.User;
 import rommie.modules.GoogleResults.GoogleResults;
 
 import java.io.*;
@@ -19,16 +20,22 @@ public class Rommie extends PircBot {
     private static final String TIMEOUT_DIR = RommieMain.config.getProperty("TIMEOUT_DIR");
     private static final String TIMEOUT_FILE = RommieMain.config.getProperty("TIMEOUT_FILE");
     private static final String BOT_NAME = RommieMain.config.getProperty("BOT_NAME");
-    private static final String CREATOR = RommieMain.config.getProperty("CREATOR");
     private static final String DATA_PATH = RommieMain.config.getProperty("DATA_PATH");
     private static final String POTATO = RommieMain.config.getProperty("DISCONNECT_PASSWORD");
 
+    private static String CREATOR = RommieMain.config.getProperty("CREATOR");
+    private static String CMD_PREFIX = RommieMain.config.getProperty("CMD_PREFIX");
+    String MESSAGE_CHANNEL = RommieMain.config.getProperty("MESSAGE_CHANNEL");
+
+
     //Locally set and changed variables
-    private static String CMD_PREFIX = ">";
-    String MESSAGE_CHANNEL = "#Rommie";
     DateFormat dateFormatTime = new SimpleDateFormat("HH:mm:ss");
     Date DATE = new Date();
     int FOX_COUNT = 0;
+    String CHECK_USER = "";
+    boolean USER_EXISTS = false;
+    boolean USER_ACTIVE = false;
+
 
     //Main Rommie method
     public Rommie(){
@@ -284,26 +291,57 @@ public class Rommie extends PircBot {
                 log("Google Search command issued");
             }
 
-            //----------------------------------------------------------------------------------------------------------
+            //--------------------------------------------------------------------------------------------------------------
 
-            //Disconnect Command
-            if (message.equalsIgnoreCase(CMD_PREFIX + "disconnect") && sender.equalsIgnoreCase(CREATOR)) {
+            if (message.equalsIgnoreCase("users")){
                 String[] channels = getChannels();
-                for (int i = 0; i < channels.length; i++) {
-                    sendMessage(channels[i], "Quitting IRC ");
+                for (int c = 0; c < channels.length; c++) {
+                    User[] users = getUsers(channels[c]);
+                    for (int u = 0; u < users.length; u++) {
+                        sendMessage(channel, channels[c] + " - " + String.valueOf(users[u]));
+                    }
                 }
-                log("Disconnect command issued");
-                System.exit(0);
             }
 
-        //--------------------------------------------------------------------------------------------------------------
+            //----------------------------------------------------------------------------------------------------------
+
+            if (command.equalsIgnoreCase("check")) {
+                if (arguments.length < 1) {
+                    sendMessage(channel, "Usage : " + CMD_PREFIX + "check <User>");
+                } else {
+                    CHECK_USER = arguments[1];
+                    sendMessage("NickServ", "info " + arguments[1]);
+                }
+            }
 
         }//This brace closes the cmd loop
     }
 
+    //Used to check if a user exists when NickServ is polled
+    protected void onNotice(String sourceNick, String sourceLogin, String sourceHostname, String target, String notice){
+        //Tells me if a user does not exist with NickServ
+        if(notice.contains("is not registered.") && sourceNick.equalsIgnoreCase("NickServ")){
+            USER_EXISTS = false;
+            sendMessage("#StoneWaves", notice);
+            //checkUser();
+        }
+        //This tells me if a user exists with NickServ
+        else if(notice.contains("Information on")){
+            USER_EXISTS = true;
+            sendMessage("#StoneWaves", notice);
+            //checkUser();
+        }
+        //Tells me if a user is logged in currently with NickServ
+        if(notice.contains("Last seen  : now") && sourceNick.equalsIgnoreCase("NickServ")){
+            USER_ACTIVE = true;
+            sendMessage("#StoneWaves", notice);
+            //checkUser();
+        }
+    }
+
     //Log timeouts to file
     //Called when a timeout is logged
-    private void saveTimeout( String sender, Date date ) {
+    protected void saveTimeout( String sender, Date date ) {
         BufferedWriter myOutFile;
         try {
             //Set up the file writer
@@ -337,6 +375,7 @@ public class Rommie extends PircBot {
                     sendMessage(channels[i], "Quitting IRC ");
                 }
                 log("Disconnect command issued");
+                disconnect();
                 System.exit(0);
             }
             //Relay
@@ -355,7 +394,6 @@ public class Rommie extends PircBot {
 
     }
 
-
     //What to do when joining a channel
     protected void onJoin(String channel, String sender, String login, String hostname) {
 
@@ -363,21 +401,21 @@ public class Rommie extends PircBot {
         new File(DATA_PATH + channel).mkdirs();
         new File(DATA_PATH).mkdirs();
 
-        if(sender.equals(BOT_NAME)) {
+        if(sender.equals(getNick())) {
             //sendMessage(channel, "The current command prefix is " + CMD_PREFIX);
         }
     }
 
     //Go mad with power on OP
     protected void onOp(String channel, String sourceNick, String sourceLogin, String sourceHostname, String recipient){
-        if(recipient.equals(BOT_NAME)){
+        if(recipient.equals(getNick())){
             //sendAction(channel, "goes mad with power");
         }
     }
 
     //Join a channel on invite by CREATOR
-    public void onInvite(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String channel){
-        if(sourceNick.equals(CREATOR) && targetNick.equals(BOT_NAME)){
+    protected void onInvite(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String channel){
+        if(sourceNick.equals(CREATOR) && targetNick.equals(getNick())){
             joinChannel(channel);
         }
         else{
@@ -386,12 +424,19 @@ public class Rommie extends PircBot {
     }
 
     //What is done when we get kicked
-    public void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason){
-        if(recipientNick.equalsIgnoreCase(BOT_NAME)) {
+    protected void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason){
+        if(recipientNick.equalsIgnoreCase(getNick())) {
             sendMessage(CREATOR, "I was kicked by " + kickerNick + " from " + channel + " for: " + Colors.PURPLE + reason);
             joinChannel(channel);
         }
     }
+
+    protected void onNickChange(String oldNick, String login, String hostname, String newNick){
+        if(oldNick.equalsIgnoreCase(CREATOR)){
+            CREATOR = newNick;
+        }
+    }
+
 
     //Try to reconnect when we disconnect
     protected void onDisconnect(){
