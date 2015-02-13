@@ -6,6 +6,7 @@ import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
 import org.jibble.pircbot.User;
 import rommie.modules.GoogleResults.GoogleResults;
+import rommie.modules.OfflineTell.OfflineTell;
 
 import java.io.*;
 import java.net.URL;
@@ -13,15 +14,16 @@ import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 
 public class Rommie extends PircBot {
 
     //Load in properties from config file
-    private static final String TIMEOUT_DIR = RommieMain.config.getProperty("TIMEOUT_DIR");
-    private static final String TIMEOUT_FILE = RommieMain.config.getProperty("TIMEOUT_FILE");
-    private static final String BOT_NAME = RommieMain.config.getProperty("BOT_NAME");
-    private static final String DATA_PATH = RommieMain.config.getProperty("DATA_PATH");
-    private static final String POTATO = RommieMain.config.getProperty("DISCONNECT_PASSWORD");
+    private final String TIMEOUT_DIR = RommieMain.config.getProperty("TIMEOUT_DIR");
+    private final String TIMEOUT_FILE = RommieMain.config.getProperty("TIMEOUT_FILE");
+    private final String BOT_NAME = RommieMain.config.getProperty("BOT_NAME");
+    private final String DATA_PATH = RommieMain.config.getProperty("DATA_PATH");
+    private final String POTATO = RommieMain.config.getProperty("DISCONNECT_PASSWORD");
 
     private static String CREATOR = RommieMain.config.getProperty("CREATOR");
     private static String CMD_PREFIX = RommieMain.config.getProperty("CMD_PREFIX");
@@ -35,6 +37,8 @@ public class Rommie extends PircBot {
     String CHECK_USER = "";
     boolean USER_EXISTS = false;
     boolean USER_ACTIVE = false;
+    String CHECK_CHANNEL = "";
+    private HashMap<String, User[]> channelUserList = new HashMap<>();
 
 
     //Main Rommie method
@@ -67,6 +71,11 @@ public class Rommie extends PircBot {
         if (channel.equalsIgnoreCase(MESSAGE_CHANNEL)) {
             sendMessage(CREATOR, dateFormatTime.format(DATE) + " " + channel + " <" + sender + "> " + message);
         }
+    }
+
+    @Override
+    protected void onUserList(String channel, User[] users) {
+        channelUserList.put(channel, users);
     }
 
     //List of valid commands
@@ -138,7 +147,6 @@ public class Rommie extends PircBot {
 
             //----------------------------------------------------------------------------------------------------------
 
-            //Throw a fox at a user
             if (command.equalsIgnoreCase("fox")) {
                 if (arguments.length < 1) {
                     sendMessage(channel, "Usage : " + CMD_PREFIX + "fox <User>");
@@ -306,13 +314,32 @@ public class Rommie extends PircBot {
             //----------------------------------------------------------------------------------------------------------
 
             if (command.equalsIgnoreCase("check")) {
+                CHECK_CHANNEL = channel;
                 if (arguments.length < 1) {
                     sendMessage(channel, "Usage : " + CMD_PREFIX + "check <User>");
                 } else {
-                    CHECK_USER = arguments[1];
+
                     sendMessage("NickServ", "info " + arguments[1]);
                 }
             }
+
+            //----------------------------------------------------------------------------------------------------------
+
+            if (command.equalsIgnoreCase("message")) {
+                if (arguments.length < 3) {
+                    sendMessage(channel, "Usage : " + CMD_PREFIX + "message <User> <Message>");
+                } else {
+                    int starting_point = message.indexOf(arguments[1]) + arguments[1].length() + 1;
+                    String message_to_send = message.substring(starting_point);
+
+                    OfflineTell.createTell(arguments[1], message_to_send, channel);
+                    //sendMessage(channel, arguments[1] + ": " + message_to_send);
+                    StringWriter out = new StringWriter();
+                }
+                log("Tell command issued");
+            }
+
+
 
         }//This brace closes the cmd loop
     }
@@ -322,19 +349,19 @@ public class Rommie extends PircBot {
         //Tells me if a user does not exist with NickServ
         if(notice.contains("is not registered.") && sourceNick.equalsIgnoreCase("NickServ")){
             USER_EXISTS = false;
-            sendMessage("#StoneWaves", notice);
+            sendMessage(CHECK_CHANNEL, "User is not registered.");
             //checkUser();
         }
         //This tells me if a user exists with NickServ
-        else if(notice.contains("Information on")){
+        else if(notice.contains("Information on") && notice.contains(CHECK_USER)){
             USER_EXISTS = true;
-            sendMessage("#StoneWaves", notice);
+            sendMessage(CHECK_CHANNEL, "User is registered");
             //checkUser();
         }
         //Tells me if a user is logged in currently with NickServ
-        if(notice.contains("Last seen  : now") && sourceNick.equalsIgnoreCase("NickServ")){
+        else if(notice.contains("Last seen  : now") && sourceNick.equalsIgnoreCase("NickServ")){
             USER_ACTIVE = true;
-            sendMessage("#StoneWaves", notice);
+            sendMessage(CHECK_CHANNEL, notice);
             //checkUser();
         }
     }
@@ -388,9 +415,6 @@ public class Rommie extends PircBot {
             sendMessage(sender, "I am not authorised to talk to you");
             sendMessage(CREATOR, "PM form "+ sender + " - " +message);
         }
-
-
-
 
     }
 
