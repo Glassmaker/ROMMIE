@@ -63,7 +63,7 @@ public class Rommie extends PircBot {
 
     //Config variables
     private boolean STATE_PREFIX = false;
-    private boolean GREETING = false;
+    private boolean GREETING = true;
     private boolean FOX_MESSAGE = true;
 
 
@@ -118,8 +118,22 @@ public class Rommie extends PircBot {
 
         //Quack like a duck
         if (message.contains("fox") && !message.contains(CMD_PREFIX)){
-                sendMessage(channel, Fox[generateRandom()]);
+            sendMessage(channel, Fox[generateRandom()]);
+        }//--------------------------------------------------------------------------------------------------------------
+
+        //Random fox image
+        if (message.contains("fox") && !message.contains(CMD_PREFIX)){
+            sendMessage(channel, Fox[generateRandom()]);
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        //I'm a potato!
+        if (message.contains("potato")){
+            sendMessage(channel, "I'M A POTATO!");
+        }
+
+
     }
 
     //List of valid commands
@@ -243,6 +257,20 @@ public class Rommie extends PircBot {
                     FOX_COUNT = FOX_COUNT + 1;
                 }
                 log("Fox throwing command issued");
+            }
+
+            //----------------------------------------------------------------------------------------------------------
+
+            if (command.equalsIgnoreCase("boop")) {
+                if (arguments.length < 2) {
+                    sendAction(channel, "boops everyone");
+                    FOX_COUNT = FOX_COUNT + 1;
+                }
+                else{
+                    sendAction(channel, "boops " + arguments[1]);
+                    FOX_COUNT = FOX_COUNT + 1;
+                }
+                log("boop command issued");
             }
 
             //----------------------------------------------------------------------------------------------------------
@@ -378,7 +406,7 @@ public class Rommie extends PircBot {
                         String ResultURL = results.getResponseData().getResults().get(0).getUrl();
                         String ResultContent = results.getResponseData().getResults().get(0).getContent();
 
-                        //TODO Returns results with tags (need to remove)
+                        //TODO Remove tags on returned results
                         String ResultOutput = sender + " : " + ResultURL + " -- " + ResultTitle + " : " + ResultContent;
 
                         sendMessage(channel, ResultOutput);
@@ -525,7 +553,7 @@ public class Rommie extends PircBot {
 
         //Send greeting when someone joins if true
         if(sender.equals(getNick()) && GREETING == true) {
-            sendMessage(channel, "The current command prefix is " + GREETING);
+            sendMessage(channel, "o/ " + sender);
         }
 
         //--------------------------------------------------------------------------------------------------------------
