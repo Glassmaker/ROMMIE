@@ -16,6 +16,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static rommie.modules.RandomNumber.RandomNumber.generateRandom;
 
@@ -42,6 +44,7 @@ public class Rommie extends PircBot {
     boolean USER_ACTIVE = false;
     String CHECK_CHANNEL = "";
     private HashMap<String, User[]> channelUserList = new HashMap<>();
+    private int randomFox = 0;
 
     //Random fox array
     public static String[] Fox = new String[] {"https://i.imgur.com/WWI5fx6.jpg",
@@ -71,6 +74,8 @@ public class Rommie extends PircBot {
     public Rommie(){
         this.setName(BOT_NAME);
         this.setMessageDelay(1000);
+
+
     }
 
     //What happens when someone sends a message in a channel
@@ -116,20 +121,18 @@ public class Rommie extends PircBot {
 
         //--------------------------------------------------------------------------------------------------------------
 
-        //Quack like a duck
-        if (message.contains("fox") && !message.contains(CMD_PREFIX)){
-            sendMessage(channel, Fox[generateRandom()]);
-        }//--------------------------------------------------------------------------------------------------------------
-
         //Random fox image
-        if (message.contains("fox") && !message.contains(CMD_PREFIX)){
-            sendMessage(channel, Fox[generateRandom()]);
+        if (message.contains("fox") && !message.contains(CMD_PREFIX)) {
+
+            if (generateRandom(10) == 5) {
+                sendMessage(channel, Fox[generateRandom(Rommie.Fox.length)]);
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         //I'm a potato!
-        if (message.contains("potato")){
+        if (message.contains("potato") && generateRandom(10) == 5){
             sendMessage(channel, "I'M A POTATO!");
         }
 
@@ -253,7 +256,9 @@ public class Rommie extends PircBot {
                     FOX_COUNT = FOX_COUNT + 1;
                 }
                 else{
-                    sendAction(channel, "throws a fox at " + arguments[1]);
+                    int starting_point = message.indexOf(arguments[1]) + arguments[1].length() + 1;
+                    String message_to_send = message.substring(starting_point);
+                    sendAction(channel, "throws a fox at " + arguments[1] + message_to_send);
                     FOX_COUNT = FOX_COUNT + 1;
                 }
                 log("Fox throwing command issued");
@@ -267,7 +272,9 @@ public class Rommie extends PircBot {
                     FOX_COUNT = FOX_COUNT + 1;
                 }
                 else{
-                    sendAction(channel, "boops " + arguments[1]);
+                    int starting_point = message.indexOf(arguments[1]) + arguments[1].length() + 1;
+                    String message_to_send = message.substring(starting_point);
+                    sendAction(channel, "boops " + arguments[1] + message_to_send);
                     FOX_COUNT = FOX_COUNT + 1;
                 }
                 log("boop command issued");
@@ -455,6 +462,31 @@ public class Rommie extends PircBot {
                 log("Tell command issued");
             }
 
+            //----------------------------------------------------------------------------------------------------------
+
+            //Flip a table
+            if (command.equalsIgnoreCase("source")) {
+                if (arguments.length > 1) {
+                    sendMessage(channel, "Usage : " + CMD_PREFIX + "source");
+                } else {
+                    sendMessage(channel, "https://github.com/StoneWaves/ROMMIE");
+                }
+                log("source command issued");
+            }
+
+            //----------------------------------------------------------------------------------------------------------
+
+            if (command.equalsIgnoreCase("boob")) {
+                if (arguments.length < 2) {
+                    sendAction(channel, "Usage : " + CMD_PREFIX + "boob");
+                    FOX_COUNT = FOX_COUNT + 1;
+                }
+                else{
+                    sendMessage(channel, sender + " : (.)(.) http://cdn.bleedingcool.net/wp-content/uploads/2013/09/blue-footed-booby.jpg");
+                }
+                log("boob command issued");
+            }
+
 
 
         }//This brace closes the cmd loop
@@ -552,7 +584,7 @@ public class Rommie extends PircBot {
         //--------------------------------------------------------------------------------------------------------------
 
         //Send greeting when someone joins if true
-        if(sender.equals(getNick()) && GREETING == true) {
+        if(sender.equals(getNick()) && GREETING == true && !sender.equals(getName())) {
             sendMessage(channel, "o/ " + sender);
         }
 
@@ -596,10 +628,15 @@ public class Rommie extends PircBot {
 
     //Try to reconnect when we disconnect
     protected void onDisconnect(){
-        try {
-            reconnect();
-        } catch (IOException | IrcException e) {
-            e.printStackTrace();
+        while(!isConnected()) {
+            try {
+                Thread.currentThread().sleep(15000); // sleeping for 15 seconds
+                reconnect();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+
+
     }
 }
