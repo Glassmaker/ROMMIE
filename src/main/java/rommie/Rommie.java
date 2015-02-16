@@ -7,6 +7,7 @@ import org.jibble.pircbot.PircBot;
 import org.jibble.pircbot.User;
 import rommie.modules.GoogleResults.GoogleResults;
 import rommie.modules.OfflineTell.OfflineTell;
+import rommie.modules.RandomNumber.RandomNumber;
 
 import java.io.*;
 import java.net.URL;
@@ -40,6 +41,29 @@ public class Rommie extends PircBot {
     String CHECK_CHANNEL = "";
     private HashMap<String, User[]> channelUserList = new HashMap<>();
 
+    //Random fox array
+    public static String[] Fox = new String[] {"https://i.imgur.com/WWI5fx6.jpg",
+                                "https://i.imgur.com/JWhMlIe.gif",
+                                "https://i.imgur.com/7Cqvhxq.jpg",
+                                "https://i.imgur.com/GfP3OdP.gif",
+                                "https://i.imgur.com/R2tMDDl.jpg",
+                                "https://i.imgur.com/mAplyY5.jpg",
+                                "https://i.imgur.com/OSbysNl.gif",
+                                "https://i.imgur.com/uE3NuYu.jpg",
+                                "https://imgur.com/gallery/oczHumo",
+                                "https://i.imgur.com/D1kfA1Z.jpg",
+                                "https://i.imgur.com/sYFvsPU.jpg",
+                                "http://imgur.com/gallery/SKm5U",
+                                "https://i.imgur.com/xwdd4.jpg",
+                                "http://www.natursidan.se/wp-content/uploads/2013/04/K2_Hermann_Hirsch_Abendidylle.jpg"
+    };
+
+
+    //Config variables
+    private boolean STATE_PREFIX = false;
+    private boolean GREETING = false;
+    private boolean FOX_MESSAGE = true;
+
 
     //Main Rommie method
     public Rommie(){
@@ -59,11 +83,13 @@ public class Rommie extends PircBot {
 
         //--------------------------------------------------------------------------------------------------------------
 
-        //Quack like a duck
-        if (message.contains("quack") | message.contains("Quack")) {
-            sendMessage(channel, "Quack, Quack.");
-            sendMessage(channel, "I'm a duck!");
-        }
+        //Toggle configs
+        config(channel, sender, message);
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        //Random fox messages
+        generalMeaage(channel, sender, message);
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -76,6 +102,64 @@ public class Rommie extends PircBot {
     @Override
     protected void onUserList(String channel, User[] users) {
         channelUserList.put(channel, users);
+    }
+
+    public void generalMeaage(String channel, String sender, String message){
+
+        //Quack like a duck
+        if (message.contains("quack") | message.contains("Quack")) {
+            sendMessage(channel, "Quack, Quack.");
+            sendMessage(channel, "I'm a duck!");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        //Quack like a duck
+        if (message.contains("fox")){
+            sendMessage(channel, Fox[RandomNumber.generateRandom()]);
+        }
+    }
+
+    //List of valid commands
+    //Called from onMessage
+    public void config(String channel, String sender, String message){
+        if (message.startsWith(CMD_PREFIX)) {
+            message = message.substring(CMD_PREFIX.length()); //Strips command prefix
+
+            String[] arguments = message.split(" ");
+            String command = null;
+
+            if (arguments.length > 0 && arguments[0].length() > 0) {
+                command = arguments[0].toLowerCase().trim();
+            }
+
+            //----------------------------------------------------------------------------------------------------------
+
+            if (command == null) {
+                return;
+            }
+
+            //----------------------------------------------------------------------------------------------------------
+
+            if (command.equalsIgnoreCase("toggleprefix")) {
+                STATE_PREFIX = !STATE_PREFIX;
+                sendMessage(channel, "Prefix telling has been toggled " + STATE_PREFIX);
+            }
+
+            //----------------------------------------------------------------------------------------------------------
+
+            if (command.equalsIgnoreCase("togglegreeting")) {
+                GREETING = !GREETING;
+                sendMessage(channel, "Greetings have been toggled " + GREETING);
+            }
+
+            //----------------------------------------------------------------------------------------------------------
+
+            if (command.equalsIgnoreCase("togglefox")) {
+                FOX_MESSAGE = !FOX_MESSAGE;
+                sendMessage(channel, "Random foxes have been toggled " + FOX_MESSAGE);
+            }
+        }
     }
 
     //List of valid commands
@@ -422,12 +506,27 @@ public class Rommie extends PircBot {
     protected void onJoin(String channel, String sender, String login, String hostname) {
 
         //Not sure what to do with these yet
+        //Maybe storing files for each channel
         new File(DATA_PATH + channel).mkdirs();
         new File(DATA_PATH).mkdirs();
 
-        if(sender.equals(getNick())) {
-            //sendMessage(channel, "The current command prefix is " + CMD_PREFIX);
+        //--------------------------------------------------------------------------------------------------------------
+
+        //State prefix when we join if true
+        if(sender.equals(getNick()) && STATE_PREFIX == true) {
+            sendMessage(channel, "The current command prefix is " + STATE_PREFIX);
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        //Send greeting when someone joins if true
+        if(sender.equals(getNick()) && GREETING == true) {
+            sendMessage(channel, "The current command prefix is " + GREETING);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+
     }
 
     //Go mad with power on OP
