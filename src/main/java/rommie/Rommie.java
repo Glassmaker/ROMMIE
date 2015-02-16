@@ -6,6 +6,7 @@ import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
 import org.jibble.pircbot.User;
 import rommie.modules.GoogleResults.GoogleResults;
+import rommie.modules.Logger.Logging;
 import rommie.modules.OfflineTell.OfflineTell;
 import rommie.modules.RandomNumber.RandomNumber;
 
@@ -27,12 +28,12 @@ public class Rommie extends PircBot {
     private final String TIMEOUT_DIR = RommieMain.config.getProperty("TIMEOUT_DIR");
     private final String TIMEOUT_FILE = RommieMain.config.getProperty("TIMEOUT_FILE");
     private final String BOT_NAME = RommieMain.config.getProperty("BOT_NAME");
-    private final String DATA_PATH = RommieMain.config.getProperty("DATA_PATH");
     private final String POTATO = RommieMain.config.getProperty("DISCONNECT_PASSWORD");
 
     private static String CREATOR = RommieMain.config.getProperty("CREATOR");
     private static String CMD_PREFIX = RommieMain.config.getProperty("CMD_PREFIX");
     String MESSAGE_CHANNEL = RommieMain.config.getProperty("MESSAGE_CHANNEL");
+    public static final String DATA_PATH = RommieMain.config.getProperty("DATA_PATH");
 
 
     //Locally set and changed variables
@@ -88,6 +89,8 @@ public class Rommie extends PircBot {
             e.printStackTrace();
         }
 
+        Logging.log(channel, message, sender);
+
         //--------------------------------------------------------------------------------------------------------------
 
         //Toggle configs
@@ -102,7 +105,7 @@ public class Rommie extends PircBot {
 
         //Send message to CREATOR from specified channel
         if (channel.equalsIgnoreCase(MESSAGE_CHANNEL)) {
-            sendMessage(CREATOR, dateFormatTime.format(DATE) + " " + channel + " <" + sender + "> " + message);
+            sendMessage(CREATOR, dateFormatTime.format(DATE) + " " + channel + " <" + sender + "> " + message + "\n");
         }
     }
 
@@ -532,6 +535,11 @@ public class Rommie extends PircBot {
     //Called when the bot gets a PM
     protected void onPrivateMessage(String sender, String login, String hostname, String message) {
 
+        //Log all the things
+        new File(DATA_PATH + sender).mkdirs();
+        new File(DATA_PATH).mkdirs();
+        Logging.log(sender, message, sender);
+
         //Command to quit IRC
         String[] arguments = message.split(" ");
 
@@ -559,6 +567,7 @@ public class Rommie extends PircBot {
             }
         }
 
+        //What if you arent the creator
         else {
             sendMessage(sender, "I am not authorised to talk to you");
             sendMessage(CREATOR, "PM form "+ sender + " - " +message);
@@ -573,6 +582,7 @@ public class Rommie extends PircBot {
         //Maybe storing files for each channel
         new File(DATA_PATH + channel).mkdirs();
         new File(DATA_PATH).mkdirs();
+        Logging.log(channel, " joined the channel.", sender);
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -612,6 +622,9 @@ public class Rommie extends PircBot {
 
     //What is done when we get kicked
     protected void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason){
+
+        Logging.log(channel, " was kicked from the channel.", recipientNick);
+
         if(recipientNick.equalsIgnoreCase(getNick())) {
             sendMessage(CREATOR, "I was kicked by " + kickerNick + " from " + channel + " for: " + Colors.PURPLE + reason);
             joinChannel(channel);
@@ -623,8 +636,13 @@ public class Rommie extends PircBot {
     protected void onNickChange(String oldNick, String login, String hostname, String newNick){
         if(oldNick.equalsIgnoreCase(CREATOR)){
             CREATOR = newNick;
+
         }
     }
+
+    protected void onPart(String channel, String sender, String login, String hostname){
+        Logging.log(channel, " left the channel.", sender);
+        }
 
     //Try to reconnect when we disconnect
     protected void onDisconnect(){
