@@ -89,7 +89,7 @@ public class Rommie extends PircBot {
         //--------------------------------------------------------------------------------------------------------------
 
         //Random fox messages
-        generalMeaage(channel, sender, message);
+        generalMessage(channel, sender, message);
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -104,7 +104,7 @@ public class Rommie extends PircBot {
         channelUserList.put(channel, users);
     }
 
-    public void generalMeaage(String channel, String sender, String message){
+    public void generalMessage(String channel, String sender, String message){
 
         //Quack like a duck
         if (message.contains("quack") | message.contains("Quack")) {
@@ -115,7 +115,7 @@ public class Rommie extends PircBot {
         //--------------------------------------------------------------------------------------------------------------
 
         //Quack like a duck
-        if (message.contains("fox")){
+        if (message.contains("fox") && !message.contains(CMD_PREFIX)){
             sendMessage(channel, Fox[RandomNumber.generateRandom()]);
         }
     }
@@ -232,9 +232,10 @@ public class Rommie extends PircBot {
             //----------------------------------------------------------------------------------------------------------
 
             if (command.equalsIgnoreCase("fox")) {
-                if (arguments.length < 1) {
+                if (arguments.length < 2) {
                     sendMessage(channel, "Usage : " + CMD_PREFIX + "fox <User>");
-                } else {
+                }
+                else{
                     sendAction(channel, "throws a fox at " + arguments[1]);
                     FOX_COUNT = FOX_COUNT + 1;
                 }
