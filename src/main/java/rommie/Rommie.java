@@ -17,6 +17,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
+import static rommie.modules.RandomNumber.RandomNumber.generateRandom;
+
 public class Rommie extends PircBot {
 
     //Load in properties from config file
@@ -43,19 +45,19 @@ public class Rommie extends PircBot {
 
     //Random fox array
     public static String[] Fox = new String[] {"https://i.imgur.com/WWI5fx6.jpg",
-                                "https://i.imgur.com/JWhMlIe.gif",
-                                "https://i.imgur.com/7Cqvhxq.jpg",
-                                "https://i.imgur.com/GfP3OdP.gif",
-                                "https://i.imgur.com/R2tMDDl.jpg",
-                                "https://i.imgur.com/mAplyY5.jpg",
-                                "https://i.imgur.com/OSbysNl.gif",
-                                "https://i.imgur.com/uE3NuYu.jpg",
-                                "https://imgur.com/gallery/oczHumo",
-                                "https://i.imgur.com/D1kfA1Z.jpg",
-                                "https://i.imgur.com/sYFvsPU.jpg",
-                                "http://imgur.com/gallery/SKm5U",
-                                "https://i.imgur.com/xwdd4.jpg",
-                                "http://www.natursidan.se/wp-content/uploads/2013/04/K2_Hermann_Hirsch_Abendidylle.jpg"
+                                               "https://i.imgur.com/JWhMlIe.gif",
+                                               "https://i.imgur.com/7Cqvhxq.jpg",
+                                               "https://i.imgur.com/GfP3OdP.gif",
+                                               "https://i.imgur.com/R2tMDDl.jpg",
+                                               "https://i.imgur.com/mAplyY5.jpg",
+                                               "https://i.imgur.com/OSbysNl.gif",
+                                               "https://i.imgur.com/uE3NuYu.jpg",
+                                               "https://imgur.com/gallery/oczHumo",
+                                               "https://i.imgur.com/D1kfA1Z.jpg",
+                                               "https://i.imgur.com/sYFvsPU.jpg",
+                                               "http://imgur.com/gallery/SKm5U",
+                                               "https://i.imgur.com/xwdd4.jpg",
+                                               "http://www.natursidan.se/wp-content/uploads/2013/04/K2_Hermann_Hirsch_Abendidylle.jpg"
     };
 
 
@@ -116,7 +118,7 @@ public class Rommie extends PircBot {
 
         //Quack like a duck
         if (message.contains("fox") && !message.contains(CMD_PREFIX)){
-            sendMessage(channel, Fox[RandomNumber.generateRandom()]);
+                sendMessage(channel, Fox[generateRandom()]);
         }
     }
 
