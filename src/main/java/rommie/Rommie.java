@@ -233,7 +233,8 @@ public class Rommie extends PircBot {
 
             if (command.equalsIgnoreCase("fox")) {
                 if (arguments.length < 2) {
-                    sendMessage(channel, "Usage : " + CMD_PREFIX + "fox <User>");
+                    sendAction(channel, "throws foxes at everyone");
+                    FOX_COUNT = FOX_COUNT + 1;
                 }
                 else{
                     sendAction(channel, "throws a fox at " + arguments[1]);
