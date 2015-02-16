@@ -481,15 +481,16 @@ public class Rommie extends PircBot {
 
             if (command.equalsIgnoreCase("boob")) {
                 if (arguments.length < 2) {
-                    sendAction(channel, "Usage : " + CMD_PREFIX + "boob");
+                    sendMessage(channel, "Usage : " + CMD_PREFIX + "boob + <target>");
                     FOX_COUNT = FOX_COUNT + 1;
                 }
                 else{
-                    sendMessage(channel, sender + " : (.)(.) http://cdn.bleedingcool.net/wp-content/uploads/2013/09/blue-footed-booby.jpg");
+                    sendMessage(channel, arguments[1] + " : (.)(.) http://cdn.bleedingcool.net/wp-content/uploads/2013/09/blue-footed-booby.jpg");
                 }
                 log("boob command issued");
             }
 
+            //TODO Ad a bug command
 
 
         }//This brace closes the cmd loop
