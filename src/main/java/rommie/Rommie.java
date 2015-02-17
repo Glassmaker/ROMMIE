@@ -2,13 +2,10 @@ package rommie;
 
 import com.google.gson.Gson;
 import org.jibble.pircbot.Colors;
-import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
 import org.jibble.pircbot.User;
 import rommie.modules.GoogleResults.GoogleResults;
 import rommie.modules.Logger.Logging;
-import rommie.modules.OfflineTell.OfflineTell;
-import rommie.modules.RandomNumber.RandomNumber;
 
 import java.io.*;
 import java.net.URL;
@@ -17,8 +14,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static rommie.modules.RandomNumber.RandomNumber.generateRandom;
 
@@ -448,22 +443,6 @@ public class Rommie extends PircBot {
 
                     sendMessage("NickServ", "info " + arguments[1]);
                 }
-            }
-
-            //----------------------------------------------------------------------------------------------------------
-
-            if (command.equalsIgnoreCase("message")) {
-                if (arguments.length < 3) {
-                    sendMessage(channel, "Usage : " + CMD_PREFIX + "message <User> <Message>");
-                } else {
-                    int starting_point = message.indexOf(arguments[1]) + arguments[1].length() + 1;
-                    String message_to_send = message.substring(starting_point);
-
-                    OfflineTell.createTell(arguments[1], message_to_send, channel);
-                    //sendMessage(channel, arguments[1] + ": " + message_to_send);
-                    StringWriter out = new StringWriter();
-                }
-                log("Tell command issued");
             }
 
             //----------------------------------------------------------------------------------------------------------
