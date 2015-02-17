@@ -13,16 +13,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class RommieOld extends PircBot {
+class RommieOld extends PircBot {
 
     private static final String DataPath = ".\\Data\\";
-    private HashMap<String, User[]> channelUserList = new HashMap<>();
+    private final HashMap<String, User[]> channelUserList = new HashMap<>();
     private static final String CMD_PREFIX= ">";
-    private String creator = "StoneWaves";
+    private final String creator = "StoneWaves";
     Scanner keyboard = new Scanner(System.in);
-    String directchannel = "#Rommie";
+    private String directchannel = "#Rommie";
 
-    private ArrayList Channels = new ArrayList();
+    private final ArrayList Channels = new ArrayList();
 
     DateFormat dateFormatDay = new SimpleDateFormat("yyyy/MM/dd");
     DateFormat dateFormatTime = new SimpleDateFormat("HH:mm:ss");
@@ -137,7 +137,7 @@ public class RommieOld extends PircBot {
             }
 
             //----------------------------------------------------------------------------------------------------------
-//TODO FIX
+
             if(message.equalsIgnoreCase("part")){
                 sendMessage(channel, "/part");
             }
@@ -209,7 +209,7 @@ public class RommieOld extends PircBot {
     }
 
     //Directory creation for later use
-    private void findDirectory() throws IOException {
+    private void findDirectory() {
 
         File dir = new File(DataPath);
         new File(DataPath).mkdirs();

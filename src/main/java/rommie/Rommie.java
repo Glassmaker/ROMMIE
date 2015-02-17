@@ -30,23 +30,24 @@ public class Rommie extends PircBot {
 
     private static String CREATOR = RommieMain.config.getProperty("CREATOR");
     private static String CMD_PREFIX = RommieMain.config.getProperty("CMD_PREFIX");
-    String MESSAGE_CHANNEL = RommieMain.config.getProperty("MESSAGE_CHANNEL");
+    private String MESSAGE_CHANNEL = RommieMain.config.getProperty("MESSAGE_CHANNEL");
     public static final String DATA_PATH = RommieMain.config.getProperty("DATA_PATH");
 
+    private final DateFormat dateFormatTime = new SimpleDateFormat("HH:mm:ss");
+    private final Date DATE = new Date();
+    private int FOX_COUNT = 0;
+    private boolean USER_EXISTS = false;
+    private boolean USER_ACTIVE = false;
+    private final HashMap<String, User[]> channelUserList = new HashMap<>();
 
-    //Locally set and changed variables
-    DateFormat dateFormatTime = new SimpleDateFormat("HH:mm:ss");
-    Date DATE = new Date();
-    int FOX_COUNT = 0;
-    String CHECK_USER = "";
-    boolean USER_EXISTS = false;
-    boolean USER_ACTIVE = false;
-    String CHECK_CHANNEL = "";
-    private HashMap<String, User[]> channelUserList = new HashMap<>();
-
+    //Config variables
+    private boolean STATE_PREFIX = false;
+    private boolean GREETING = true;
+    private boolean FOX_MESSAGE = true;
+    private boolean POTATO_MESSAGE = true;
 
     //Random fox array
-    public static String[] Fox = new String[] {"https://i.imgur.com/WWI5fx6.jpg",
+    private static final String[] Fox = new String[] {"https://i.imgur.com/WWI5fx6.jpg",
                                                "https://i.imgur.com/JWhMlIe.gif",
                                                "https://i.imgur.com/7Cqvhxq.jpg",
                                                "https://i.imgur.com/GfP3OdP.gif",
@@ -64,13 +65,8 @@ public class Rommie extends PircBot {
     };
 
 
-    //Config variables
-    private boolean STATE_PREFIX = false;
-    private boolean GREETING = true;
-    private boolean FOX_MESSAGE = true;
-    private boolean POTATO_MESSAGE = true;
 
-    int timerCount = 0;
+
     //Main Rommie method
     public Rommie(){
         this.setName(BOT_NAME);
@@ -128,7 +124,7 @@ public class Rommie extends PircBot {
     }
 
     //These are run randomly based on a random number generator
-    public void generalMessage(String channel, String sender, String message){
+    void generalMessage(String channel, String sender, String message){
 
         //Quack like a duck
         if (message.contains("quack") | message.contains("Quack") && !message.contains(CMD_PREFIX) && generateRandom(10) == 5) {
@@ -154,7 +150,7 @@ public class Rommie extends PircBot {
 
     //Commands to change configs
     //Called from onMessage
-    public void config(String channel, String sender, String message){
+    void config(String channel, String sender, String message){
         if (message.startsWith(CMD_PREFIX)) {
             message = message.substring(CMD_PREFIX.length()); //Strips command prefix
 
@@ -207,7 +203,7 @@ public class Rommie extends PircBot {
 
     //All commands are declared and run from here
     //Called from onMessage
-    public void commandCheck(String channel, String sender, String message) throws IOException {
+    void commandCheck(String channel, String sender, String message) throws IOException {
         if (message.startsWith(CMD_PREFIX)) {
             message = message.substring(CMD_PREFIX.length()); //Strips command prefix
 
@@ -408,8 +404,8 @@ public class Rommie extends PircBot {
                         String ResultOutput = sender + " : " + ResultURL + " -- " + ResultTitle + " : " + ResultContent;
 
                         // Remove tags on the returned results
-                        ResultOutput = ResultOutput.toString().replaceAll("</b>", "");
-                        ResultOutput = ResultOutput.toString().replaceAll("<b>", "");
+                        ResultOutput = ResultOutput.replaceAll("</b>", "");
+                        ResultOutput = ResultOutput.replaceAll("<b>", "");
 
                         sendMessage(channel, ResultOutput);
                     }
@@ -474,6 +470,8 @@ public class Rommie extends PircBot {
     //Used to check if a user exists when NickServ is polled
     protected void onNotice(String sourceNick, String sourceLogin, String sourceHostname, String target, String notice){
         //Tells me if a user does not exist with NickServ
+        String CHECK_CHANNEL = "";
+        String CHECK_USER = "";
         if(notice.contains("is not registered.") && sourceNick.equalsIgnoreCase("NickServ")){
             USER_EXISTS = false;
             sendMessage(CHECK_CHANNEL, "User is not registered.");
@@ -495,7 +493,7 @@ public class Rommie extends PircBot {
 
     //Log timeouts to file
     //Called when a timeout is logged
-    protected void saveTimeout( String sender, Date date ) {
+    void saveTimeout(String sender, Date date) {
         BufferedWriter myOutFile;
         try {
             //Set up the file writer
@@ -530,8 +528,8 @@ public class Rommie extends PircBot {
             //Kill command
             else if (message.startsWith(CMD_PREFIX + "disconnect") && sender.equalsIgnoreCase(CREATOR) && arguments[1].equalsIgnoreCase(POTATO)){
                 String[] channels = getChannels();
-                for (int i = 0; i < channels.length; i++) {
-                    sendMessage(channels[i], "Quitting IRC ");
+                for (String channel : channels) {
+                    sendMessage(channel, "Quitting IRC ");
                 }
                 log("Disconnect command issued");
                 disconnect();
@@ -563,14 +561,14 @@ public class Rommie extends PircBot {
         //--------------------------------------------------------------------------------------------------------------
 
         //State prefix when we join if true
-        if(sender.equals(getNick()) && STATE_PREFIX == true) {
+        if(sender.equals(getNick()) && STATE_PREFIX) {
             sendMessage(channel, "The current command prefix is " + STATE_PREFIX);
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
         //Send greeting when someone joins if true
-        if(sender.equals(getNick()) && GREETING == true && !sender.equals(BOT_NAME)) {
+        if(sender.equals(getNick()) && GREETING && !sender.equals(BOT_NAME)) {
             sendMessage(channel, "o/");
         }
 
