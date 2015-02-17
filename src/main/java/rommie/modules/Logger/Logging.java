@@ -11,6 +11,8 @@ import java.util.Date;
 
 public class Logging {
 
+    //TODO Log messages from Rommie and not just other users
+
     public static void log(String channel, String message, String sender){
 
         DateFormat logDateFormat = new SimpleDateFormat("E - dd.MM.yyyy");

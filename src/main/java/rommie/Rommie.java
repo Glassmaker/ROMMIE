@@ -6,6 +6,7 @@ import org.jibble.pircbot.PircBot;
 import org.jibble.pircbot.User;
 import rommie.modules.GoogleResults.GoogleResults;
 import rommie.modules.Logger.Logging;
+import rommie.modules.Quote.Quote;
 
 import java.io.*;
 import java.net.URL;
@@ -14,6 +15,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static rommie.modules.RandomNumber.RandomNumber.generateRandom;
 
@@ -66,11 +69,25 @@ public class Rommie extends PircBot {
     private boolean GREETING = true;
     private boolean FOX_MESSAGE = true;
 
-
+    int timerCount = 0;
     //Main Rommie method
     public Rommie(){
         this.setName(BOT_NAME);
         this.setMessageDelay(1000);
+
+
+
+        TimerTask tt = new TimerTask()
+        {
+            public void run()
+            {
+               //run when timer is completed
+
+            }
+        };
+
+        //Run the timer (<timer task>, <sec>*1000, <sec>*1000)
+        new Timer().schedule(tt, 10*1000, 10*1000);
 
 
     }
@@ -393,7 +410,8 @@ public class Rommie extends PircBot {
                 if (arguments.length < 2) {
                     sendMessage(channel, "Usage : " + CMD_PREFIX + "google <Search Phrase>");
                 } else {
-                    String address = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=";
+                    String address = "http://ajax.googleapis.com/ajax/services/search/web?start=0&rsz=small&v=1.0&q=";
+
                     int starting_point = message.indexOf(arguments[1]);
                     String query = message.substring(starting_point);
                     String charset = "UTF-8";
@@ -415,6 +433,8 @@ public class Rommie extends PircBot {
                         //TODO Remove tags on returned results
                         String ResultOutput = sender + " : " + ResultURL + " -- " + ResultTitle + " : " + ResultContent;
 
+                        ResultOutput = ResultOutput.toString().replaceAll("</b>", "");
+                        ResultOutput = ResultOutput.toString().replaceAll("<b>", "");
                         sendMessage(channel, ResultOutput);
                     }
                 }
@@ -472,6 +492,17 @@ public class Rommie extends PircBot {
 
             //TODO Ad a bug command
 
+            //----------------------------------------------------------------------------------------------------------
+
+            //Flip a table
+            if (command.equalsIgnoreCase("quote")) {
+                if (arguments.length > 1) {
+                    sendMessage(channel, "Usage : " + CMD_PREFIX + "source");
+                } else {
+                    sendMessage(channel, Quote.quote());
+                }
+                log("source command issued");
+            }
 
         }//This brace closes the cmd loop
     }
