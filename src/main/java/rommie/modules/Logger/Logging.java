@@ -13,7 +13,7 @@ public class Logging {
 
     public static void log(String channel, String message, String sender){
 
-        DateFormat logDateFormat = new SimpleDateFormat("E dd MM yyyy");
+        DateFormat logDateFormat = new SimpleDateFormat("E - dd.MM.yyyy");
         DateFormat messageDateFormat = new SimpleDateFormat("HH:mm:ss");
         Date date = new Date();
 

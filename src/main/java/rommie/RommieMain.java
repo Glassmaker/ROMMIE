@@ -33,8 +33,8 @@ public class RommieMain {
         // Join channels.
         bot.joinChannel("#StoneWaves");
         bot.joinChannel("#Rommie");
-        bot.joinChannel("#FetishCraft");
-        bot.joinChannel("#Kihira");
+        //bot.joinChannel("#FetishCraft");
+        //bot.joinChannel("#Kihira");
 
     }
 }

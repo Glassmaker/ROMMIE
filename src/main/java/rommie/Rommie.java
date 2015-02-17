@@ -61,6 +61,7 @@ public class Rommie extends PircBot {
                                                "https://i.imgur.com/sYFvsPU.jpg",
                                                "http://imgur.com/gallery/SKm5U",
                                                "https://i.imgur.com/xwdd4.jpg",
+                                               "http://imgur.com/a/vDII7",
                                                "http://www.natursidan.se/wp-content/uploads/2013/04/K2_Hermann_Hirsch_Abendidylle.jpg"
     };
 
@@ -386,7 +387,7 @@ public class Rommie extends PircBot {
                     int starting_point = message.indexOf(arguments[1]) + 1;
                     String message_to_send = message.substring(starting_point);
 
-                    setTopic(channel, arguments[1] + " " + message_to_send);
+                    setTopic(channel, arguments[1] + "  " + message_to_send);
                 }
                 log("Topic command issued");
             }
