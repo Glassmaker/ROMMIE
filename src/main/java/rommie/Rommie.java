@@ -45,6 +45,7 @@ public class Rommie extends PircBot {
     private boolean GREETING = true;
     private boolean FOX_MESSAGE = true;
     private boolean POTATO_MESSAGE = true;
+    private int NEXT_TIMER = generateRandom(1440);
 
     //Random fox array
     private static final String[] Fox = new String[] {"https://i.imgur.com/WWI5fx6.jpg",
@@ -77,13 +78,15 @@ public class Rommie extends PircBot {
         {
             public void run()
             {
-               //TODO Do something when timer is complete
-
+                //TODO Do something when timer is complete
+                sendMessage("#StoneWaves", "The next event has been scheduled for " + NEXT_TIMER + " minutes form now.");
+                //Picks a random minute delay up to a day
+                NEXT_TIMER = generateRandom(1440);
             }
         };
-        //Run the timer (<timer task>, <sec>*1000, <sec>*1000)
-        new Timer().schedule(tt, 10*1000, 10*1000);
-
+        //Run the timer (<timer task>, <sec>*60000, <sec>*60000)
+        //<sec>*60000 = amount of minutes till running again
+        new Timer().schedule(tt, NEXT_TIMER*60000, NEXT_TIMER*60000);
 
     }
 
@@ -97,7 +100,7 @@ public class Rommie extends PircBot {
             e.printStackTrace();
         }
 
-        Logging.log(channel, message, sender);
+        Logging.logMessage(channel, message, sender);
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -116,6 +119,24 @@ public class Rommie extends PircBot {
             sendMessage(CREATOR, dateFormatTime.format(DATE) + " " + channel + " <" + sender + "> " + message + "\n");
         }
     }
+
+    protected void onAction(String sender, String login, String hostname, String target, String action) {
+
+        //TODO Find out what channel the action was sent from
+        //Logging.logMessage(channel, action, sender);
+
+        if(action.equalsIgnoreCase("shoots Rommie") && sender.equalsIgnoreCase(CREATOR)){
+            String[] channels = getChannels();
+            for (String channel : channels) {
+                sendMessage(channel, "Quitting IRC ");
+            }
+            log("Disconnect command issued");
+            disconnect();
+            System.exit(0);
+        }
+
+    }
+
 
     //Generates a user list and stores it in a hash map
     @Override
@@ -268,7 +289,7 @@ public class Rommie extends PircBot {
                     FOX_COUNT = FOX_COUNT + 1;
                 }
                 else{
-                    int starting_point = message.indexOf(arguments[1]) + arguments[1].length() + 1;
+                    int starting_point = message.indexOf(arguments[1]) + arguments[1].length();
                     String message_to_send = message.substring(starting_point);
                     sendAction(channel, "throws a fox at " + arguments[1] + " " + message_to_send);
                     FOX_COUNT = FOX_COUNT + 1;
@@ -285,7 +306,7 @@ public class Rommie extends PircBot {
                     FOX_COUNT = FOX_COUNT + 1;
                 }
                 else{
-                    int starting_point = message.indexOf(arguments[1]) + arguments[1].length() + 1;
+                    int starting_point = message.indexOf(arguments[1]) + arguments[1].length();
                     String message_to_send = message.substring(starting_point);
                     sendAction(channel, "boops " + arguments[1] + message_to_send);
                     FOX_COUNT = FOX_COUNT + 1;
@@ -464,6 +485,18 @@ public class Rommie extends PircBot {
                 }
             }
 
+            //----------------------------------------------------------------------------------------------------------
+
+            //Fetches a random quote form I <3 quotes
+            //Called by sending "quote" with the CMD_PREFIX appended
+            if (command.equalsIgnoreCase("timer")) {
+                if (arguments.length > 1) {
+                    sendMessage(channel, "Usage : " + CMD_PREFIX + "timer");
+                } else {
+                    sendMessage(channel, "The current task was chosen as " + NEXT_TIMER);
+                }
+            }
+
         }//This brace closes the cmd loop
     }
 
@@ -512,7 +545,7 @@ public class Rommie extends PircBot {
         //Log all the things
         new File(DATA_PATH + sender).mkdirs();
         new File(DATA_PATH).mkdirs();
-        Logging.log(sender, message, sender);
+        Logging.logMessage(sender, message, sender);
 
         //Command to quit IRC
         String[] arguments = message.split(" ");
@@ -556,7 +589,11 @@ public class Rommie extends PircBot {
         //Maybe storing files for each channel
         new File(DATA_PATH + channel).mkdirs();
         new File(DATA_PATH).mkdirs();
-        Logging.log(channel, " joined the channel.", sender);
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        //Log things
+        Logging.logJoin(channel, " joined the channel.", sender);
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -568,8 +605,8 @@ public class Rommie extends PircBot {
         //--------------------------------------------------------------------------------------------------------------
 
         //Send greeting when someone joins if true
-        if(sender.equals(getNick()) && GREETING && !sender.equals(BOT_NAME)) {
-            sendMessage(channel, "o/");
+        if(!sender.equals(getNick()) && GREETING) {
+            sendMessage(channel, "o/ " + sender);
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -596,7 +633,7 @@ public class Rommie extends PircBot {
     //What is done when we get kicked
     protected void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason){
 
-        Logging.log(channel, " was kicked from the channel.", recipientNick);
+        Logging.logKick(channel, " was kicked from the channel.", recipientNick);
 
         if(recipientNick.equalsIgnoreCase(getNick())) {
             sendMessage(CREATOR, "I was kicked by " + kickerNick + " from " + channel + " for: " + Colors.PURPLE + reason);
@@ -615,7 +652,7 @@ public class Rommie extends PircBot {
 
     //What happens when someone parts a channel
     protected void onPart(String channel, String sender, String login, String hostname){
-        Logging.log(channel, " left the channel.", sender);
+        Logging.logPart(channel, " left the channel.", sender);
         }
 
     //Try to reconnect when we disconnect

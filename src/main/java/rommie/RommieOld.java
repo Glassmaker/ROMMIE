@@ -170,14 +170,10 @@ class RommieOld extends PircBot {
             Channels.add(channel);
             File dir = new File(DataPath + channel);
             new File(String.valueOf(dir)).mkdirs();
-            try {
-                findDirectory();
-                //new File(DataPath + channel + "\\Users.txt").createNewFile();
-                //sendMessage(channel, "hi");
+            findDirectory();
+            //new File(DataPath + channel + "\\Users.txt").createNewFile();
+            //sendMessage(channel, "hi");
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
 
         if(hostname.contains("Othlon@")){

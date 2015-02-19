@@ -13,7 +13,6 @@ public class Quote {
 
     public static String quote() {
 
-        URL url;
         HttpURLConnection connection = null;
         String targetURL = "http://www.iheartquotes.com/api/v1/random";
         String urlParameters = "?max_lines=1";
@@ -21,7 +20,7 @@ public class Quote {
             //Create connection
 
 
-            url = new URL(targetURL);
+            URL url = new URL(targetURL);
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type",
@@ -53,6 +52,7 @@ public class Quote {
             }
             rd.close();
 
+            // Replace tags and return
             return response.toString().replaceAll("&quot;", "\"");
 
         } catch (Exception e) {

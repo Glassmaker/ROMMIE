@@ -8,8 +8,8 @@ public class RandomNumber {
         Random randomGenerator = new Random();
         //noinspection LoopStatementThatDoesntLoop
         for (int idx = 1; true; ++idx) {
-            return randomGenerator.nextInt(max);
+            int randomInt = randomGenerator.nextInt(max);
+            return randomInt;
         }
-        return 3;
     }
 }
