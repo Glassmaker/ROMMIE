@@ -4,6 +4,9 @@ import org.jibble.pircbot.User;
 
 import rommie.Rommie;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+
 public abstract class CommandBase {
 	/**
 	 * The required level a user has to be to use the command:<br>
@@ -45,7 +48,7 @@ public abstract class CommandBase {
 	}
 
 
-	public abstract void performCommand(User user, String channel, String[] args, String message, Rommie instance) throws InterruptedException;
+	public abstract void performCommand(User user, String channel, String[] args, String message, Rommie instance) throws InterruptedException, IOException;
 
 	public void sendUsageMessage(String channel, Rommie instance)
 	{

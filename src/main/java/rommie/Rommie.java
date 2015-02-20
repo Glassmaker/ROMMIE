@@ -580,7 +580,7 @@ public class Rommie extends PircBot {
 
 	}
 
-	void performPendingCommands() throws InterruptedException {
+	void performPendingCommands() throws InterruptedException, IOException {
 		Iterator<CommandRequest> iterator = this.requestedCommands.iterator();
 		while(iterator.hasNext()){
 			CommandRequest request = iterator.next();
@@ -655,6 +655,8 @@ public class Rommie extends PircBot {
         try {
             performPendingCommands();
         } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
