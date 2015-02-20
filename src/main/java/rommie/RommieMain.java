@@ -14,6 +14,7 @@ class RommieMain {
         try {
             config.load(new FileInputStream("Rommie.properties"));
         } catch (IOException ioex) {
+        	ioex.printStackTrace();
             System.err.println("Error loading config file: Rommie.properties");
             System.exit(0);
         }
@@ -31,10 +32,10 @@ class RommieMain {
         bot.identify(config.getProperty("ident"));
 
         // Join channels.
-        bot.joinChannel("#StoneWaves");
+//        bot.joinChannel("#StoneWaves");
         bot.joinChannel("#Rommie");
-        bot.joinChannel("#FetishCraft");
-        bot.joinChannel("#Kihira");
+//        bot.joinChannel("#FetishCraft");
+//        bot.joinChannel("#Kihira");
 
     }
 }
