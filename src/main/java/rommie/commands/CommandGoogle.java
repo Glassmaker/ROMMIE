@@ -47,7 +47,7 @@ public class CommandGoogle  extends CommandBase {
                 // Remove tags on the returned results
 
 
-                ResultOutput = ResultOutput.replaceAll("&#39;", "");
+                ResultOutput = ResultOutput.replaceAll("&#39;", "'");
                 ResultOutput = ResultOutput.replaceAll("</b>", "");
                 ResultOutput = ResultOutput.replaceAll("<b>", "");
 

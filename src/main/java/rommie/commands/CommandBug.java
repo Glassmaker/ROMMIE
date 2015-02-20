@@ -3,11 +3,11 @@ package rommie.commands;
 import org.jibble.pircbot.User;
 import rommie.Rommie;
 
-public class CommandSource extends CommandBase {
+public class CommandBug extends CommandBase {
 
-    public CommandSource()
+    public CommandBug()
     {
-        super("source", 3);
+        super("bug", 3);
     }
 
     @Override
@@ -16,13 +16,12 @@ public class CommandSource extends CommandBase {
         if (args.length > 1) {
             this.sendUsageMessage(channel, instance);
         } else {
-            instance.sendMessage(channel, "https://github.com/StoneWaves/ROMMIE");
+            instance.sendMessage(channel, "Got a problem? Report it here.. https://github.com/StoneWaves/ROMMIE/issues/new");
         }
     }
 
     @Override
     public String getUsageHelp() {
-        return "Source. Provides the link to Rommie's source code";
+        return "Bug. Provides the link to Rommie's issue page";
     }
 }
-

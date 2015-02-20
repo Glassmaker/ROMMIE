@@ -2,12 +2,13 @@ package rommie.commands;
 
 import org.jibble.pircbot.User;
 import rommie.Rommie;
+import rommie.modules.Quote.Quote;
 
-public class CommandSource extends CommandBase {
+public class CommandQuote extends CommandBase {
 
-    public CommandSource()
+    public CommandQuote()
     {
-        super("source", 3);
+        super("quote", 3);
     }
 
     @Override
@@ -16,13 +17,13 @@ public class CommandSource extends CommandBase {
         if (args.length > 1) {
             this.sendUsageMessage(channel, instance);
         } else {
-            instance.sendMessage(channel, "https://github.com/StoneWaves/ROMMIE");
+            instance.sendMessage(channel, Quote.quote());
         }
     }
 
     @Override
     public String getUsageHelp() {
-        return "Source. Provides the link to Rommie's source code";
+        return "Quote. Gives a random quote from iheartquotes.com";
     }
 }
 

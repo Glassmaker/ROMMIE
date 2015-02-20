@@ -3,11 +3,13 @@ package rommie.commands;
 import org.jibble.pircbot.User;
 import rommie.Rommie;
 
-public class CommandSource extends CommandBase {
+import java.util.Date;
 
-    public CommandSource()
+public class CommandTimeout extends CommandBase {
+
+    public CommandTimeout()
     {
-        super("source", 3);
+        super("timeout", 2);
     }
 
     @Override
@@ -15,14 +17,16 @@ public class CommandSource extends CommandBase {
     {
         if (args.length > 1) {
             this.sendUsageMessage(channel, instance);
-        } else {
-            instance.sendMessage(channel, "https://github.com/StoneWaves/ROMMIE");
         }
+            else{
+                instance.saveTimeout(user, new Date());
+                instance.sendMessage(channel, "The date and time has been noted.");
+            }
     }
 
     @Override
     public String getUsageHelp() {
-        return "Source. Provides the link to Rommie's source code";
+        return "timeout. Logs timeouts for the FoxStone server.";
     }
 }
 
