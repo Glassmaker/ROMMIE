@@ -15,13 +15,11 @@ public class CommandFox extends CommandBase {
 	{
 		if (args.length < 2) {
 			instance.sendAction(channel, "throws foxes at everyone");
-			instance.FOX_COUNT = instance.FOX_COUNT + 1;
 		}
 		else{
 			int starting_point = message.indexOf("fox")+"fox ".length();
 			String message_to_send = message.substring(starting_point).trim();
 			instance.sendAction(channel, "throws a fox at " + message_to_send);
-			instance.FOX_COUNT = instance.FOX_COUNT + 1;
 		}
 	}
 

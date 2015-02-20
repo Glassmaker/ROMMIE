@@ -8,7 +8,7 @@ public class CommandPart extends CommandBase {
 
 	public CommandPart()
 	{
-		super("part", 0);
+		super("part", 1);
 	}
 	@Override
 	public void performCommand(User user, String channel, String[] args, String message, Rommie instance)

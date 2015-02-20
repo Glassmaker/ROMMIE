@@ -41,7 +41,6 @@ public class Rommie extends PircBot {
 
 	private final DateFormat dateFormatTime = new SimpleDateFormat("HH:mm:ss");
 	private final Date DATE = new Date();
-	public int FOX_COUNT = 0;
 	private boolean USER_EXISTS = false;
 	private boolean USER_ACTIVE = false;
 	private final HashMap<String, User[]> channelUserList = new HashMap<>();
@@ -400,7 +399,7 @@ public class Rommie extends PircBot {
                 if (arguments.length > 1) {
                     sendMessage(channel, "Usage : " + CMD_PREFIX + "table");
                 } else {
-                    sendMessage(channel, "(╯°□°）╯︵ ┻�?┻");
+                    sendMessage(channel, "(╯°□°）╯︵ ┻�?┻");
                 }
             }
 

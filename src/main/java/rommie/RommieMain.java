@@ -32,8 +32,8 @@ class RommieMain {
         bot.identify(config.getProperty("ident"));
 
         // Join channels.
-//        bot.joinChannel("#StoneWaves");
-        bot.joinChannel("#Rommie");
+        bot.joinChannel("#StoneWaves");
+//        bot.joinChannel("#Rommie");
 //        bot.joinChannel("#FetishCraft");
 //        bot.joinChannel("#Kihira");
 
