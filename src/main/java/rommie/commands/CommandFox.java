@@ -10,6 +10,7 @@ public class CommandFox extends CommandBase {
 	{
 		super("fox", 3);
 	}
+
 	@Override
 	public void performCommand(User user, String channel, String[] args, String message, Rommie instance)
 	{

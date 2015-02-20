@@ -11,13 +11,13 @@ public class CommandPart extends CommandBase {
 		super("part", 1);
 	}
 	@Override
-	public void performCommand(User user, String channel, String[] args, String message, Rommie instance)
-	{
+	public void performCommand(User user, String channel, String[] args, String message, Rommie instance) throws InterruptedException {
 		if (args.length > 1) {
 			this.sendUsageMessage(channel, instance);
 		} else {
 			instance.sendMessage(channel, "Leaving channel as commanded");
-			instance.partChannel(channel);
+            Thread.currentThread().sleep(1000);
+            instance.partChannel(channel);
 		}
 	}
 

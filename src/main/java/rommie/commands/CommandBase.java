@@ -45,7 +45,7 @@ public abstract class CommandBase {
 	}
 
 
-	public abstract void performCommand(User user, String channel, String[] args, String message, Rommie instance);
+	public abstract void performCommand(User user, String channel, String[] args, String message, Rommie instance) throws InterruptedException;
 
 	public void sendUsageMessage(String channel, Rommie instance)
 	{

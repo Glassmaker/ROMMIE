@@ -14,7 +14,7 @@ public class CommandReloadCommands extends CommandBase {
 	public void performCommand(User user, String channel, String[] args, String message, Rommie instance)
 	{
 		instance.setupCommands();
-//		instance.sendMessage(channel, "Commands reloaded");
+		instance.sendMessage(channel, "Commands reloaded");
 	}
 
 	@Override

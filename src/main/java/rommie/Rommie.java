@@ -10,13 +10,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 import org.jibble.pircbot.Colors;
 import org.jibble.pircbot.PircBot;
@@ -33,8 +27,8 @@ public class Rommie extends PircBot {
 	private final String TIMEOUT_FILE = RommieMain.config.getProperty("TIMEOUT_FILE");
 	private final String BOT_NAME = RommieMain.config.getProperty("BOT_NAME");
 	private final String POTATO = RommieMain.config.getProperty("DISCONNECT_PASSWORD");
-
-	private static String CREATOR = RommieMain.config.getProperty("CREATOR");
+    private static ArrayList<String> CREATOR = new ArrayList<>(Arrays.asList(RommieMain.config.get("CREATOR").toString().split(",")));
+	//private static String CREATOR = RommieMain.config.getProperty("CREATOR");
 	public static String CMD_PREFIX = RommieMain.config.getProperty("CMD_PREFIX");
 	private String MESSAGE_CHANNEL = RommieMain.config.getProperty("MESSAGE_CHANNEL");
 	public static final String DATA_PATH = RommieMain.config.getProperty("DATA_PATH");
@@ -44,6 +38,10 @@ public class Rommie extends PircBot {
 	private boolean USER_EXISTS = false;
 	private boolean USER_ACTIVE = false;
 	private final HashMap<String, User[]> channelUserList = new HashMap<>();
+
+
+
+
 
 	//Config variables
 	private boolean STATE_PREFIX = false;
@@ -82,7 +80,8 @@ public class Rommie extends PircBot {
 	//Main Rommie method
 	public Rommie(){
 		this.setName(BOT_NAME);
-		this.setMessageDelay(1000);
+		//this.setMessageDelay(1000);
+
 
 		this.setupCommands();
 
@@ -148,9 +147,11 @@ public class Rommie extends PircBot {
 			commandCheck(channel, sender, message);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		} catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-		Logging.logMessage(channel, message, sender);
+        Logging.logMessage(channel, message, sender);
 
 		//--------------------------------------------------------------------------------------------------------------
 
@@ -176,7 +177,7 @@ public class Rommie extends PircBot {
 		//TODO Find out what channel the action was sent from
 		//Logging.logMessage(channel, action, sender);
 
-		if(action.equalsIgnoreCase("shoots Rommie") && sender.equalsIgnoreCase(CREATOR)){
+		if(action.equalsIgnoreCase("shoots Rommie")&& CREATOR.contains(sender)){
 			String[] channels = getChannels();
 			for (String channel : channels) {
 				sendMessage(channel, "Quitting IRC ");
@@ -275,7 +276,7 @@ public class Rommie extends PircBot {
 
 	//All commands are declared and run from here
 	//Called from onMessage
-	void commandCheck(String channel, String sender, String message) throws IOException {
+	void commandCheck(String channel, String sender, String message) throws IOException, InterruptedException {
 		if (message.startsWith(CMD_PREFIX)) {
 			message = message.substring(CMD_PREFIX.length()); //Strips command prefix
 
@@ -579,7 +580,7 @@ public class Rommie extends PircBot {
 
 	}
 
-	void performPendingCommands(){
+	void performPendingCommands() throws InterruptedException {
 		Iterator<CommandRequest> iterator = this.requestedCommands.iterator();
 		while(iterator.hasNext()){
 			CommandRequest request = iterator.next();
@@ -601,8 +602,6 @@ public class Rommie extends PircBot {
 			}
 		}
 	}
-
-
 
 	//Used to check if a user exists when NickServ is polled
 	protected void onNotice(String sourceNick, String sourceLogin, String sourceHostname, String target, String notice){
@@ -645,16 +644,20 @@ public class Rommie extends PircBot {
 		for(CommandRequest request : this.requestedCommands)
 			if(request.user.getNick().equalsIgnoreCase(name))
 			{
-				System.out.println("Account: "+account+", Creator: "+CREATOR+", match: "+account.equalsIgnoreCase(CREATOR));
-				if(account.equalsIgnoreCase(CREATOR)){
+				System.out.println("Account: "+account+", Creator: "+CREATOR+", match: "+CREATOR.contains(account));
+				if(CREATOR.contains(account)){
 					request.status = CommandRequest.RequestStatus.APPROVED;
 				}
 				else{
 					request.status = CommandRequest.RequestStatus.DENIED;
 				}
 			}
-		performPendingCommands();
-	}
+        try {
+            performPendingCommands();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
 	//Log timeouts to file
 	//Called when a timeout is logged
@@ -685,13 +688,13 @@ public class Rommie extends PircBot {
 		//--------------------------------------------------------------------------------------------------------------
 
 		//Chat relay for PM's
-		if (sender.equalsIgnoreCase(CREATOR)) {
+		if (CREATOR.contains(sender)) {
 			//Channel switch
 			if (message.startsWith("#")) {
 				MESSAGE_CHANNEL = message;
 			}
 			//Kill command
-			else if (message.startsWith(CMD_PREFIX + "disconnect") && sender.equalsIgnoreCase(CREATOR) && arguments[1].equalsIgnoreCase(POTATO)){
+			else if (message.startsWith(CMD_PREFIX + "disconnect") && CREATOR.contains(sender) && arguments[1].equalsIgnoreCase(POTATO)){
 				String[] channels = getChannels();
 				for (String channel : channels) {
 					sendMessage(channel, "Quitting IRC ");
@@ -709,7 +712,8 @@ public class Rommie extends PircBot {
 		//What if you arent the creator
 		else {
 			sendMessage(sender, "I am not authorised to talk to you");
-			sendMessage(CREATOR, "PM form "+ sender + " - " +message);
+            for(int i = 0; i> CREATOR.size(); i++)
+			sendMessage(CREATOR.get(i), "PM form "+ sender + " - " +message);
 		}
 
 	}
@@ -754,7 +758,7 @@ public class Rommie extends PircBot {
 
 	//Join a channel on invite by CREATOR
 	protected void onInvite(String targetNick, String sourceNick, String sourceLogin, String sourceHostname, String channel){
-		if(sourceNick.equals(CREATOR) && targetNick.equals(getNick())){
+		if(CREATOR.contains(sourceNick) && targetNick.equals(getNick())){
 			joinChannel(channel);
 		}
 		else{
@@ -768,7 +772,8 @@ public class Rommie extends PircBot {
 		Logging.logKick(channel, " was kicked from the channel.", recipientNick);
 
 		if(recipientNick.equalsIgnoreCase(getNick())) {
-			sendMessage(CREATOR, "I was kicked by " + kickerNick + " from " + channel + " for: " + Colors.PURPLE + reason);
+            for(int i = 0; i> CREATOR.size(); i++)
+			sendMessage(CREATOR.get(i), "I was kicked by " + kickerNick + " from " + channel + " for: " + Colors.PURPLE + reason);
 			joinChannel(channel);
 		}
 	}
