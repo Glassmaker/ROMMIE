@@ -45,12 +45,13 @@ public class Rommie extends PircBot {
 
     //Config variables
     private boolean STATE_PREFIX = false;
-    private boolean GREETING = true;
+    private boolean GREETING = false;
     private boolean FOX_MESSAGE = true;
     private boolean POTATO_MESSAGE = true;
     private int NEXT_TIMER = generateRandom(1440);
 
     //Random fox array
+    private int foxArrayCount = 0;
     private static final String[] Fox = new String[] {"https://i.imgur.com/WWI5fx6.jpg",
             "https://i.imgur.com/JWhMlIe.gif",
             "https://i.imgur.com/7Cqvhxq.jpg",
@@ -92,8 +93,10 @@ public class Rommie extends PircBot {
             {
                 //TODO Do something when timer is complete
                 sendMessage("#StoneWaves", "The next event has been scheduled for " + NEXT_TIMER + " minutes form now.");
+                sendMessage("#kihira", Fox[foxArrayCount]);
+                foxArrayCount = foxArrayCount + 1;
                 //Picks a random minute delay up to a day
-                NEXT_TIMER = generateRandom(1440);
+                NEXT_TIMER = 1440;
             }
         };
         //Run the timer (<timer task>, <sec>*60000, <sec>*60000)
@@ -299,9 +302,9 @@ public class Rommie extends PircBot {
                     if(level==0)
                         this.sendMessage("NickServ", "info " + sender);
                     else if(level==1)
-                        request.status = user.isOp() ? CommandRequest.RequestStatus.APPROVED : CommandRequest.RequestStatus.DENIED;
+                        request.status = (user.isOp()||CREATOR.contains(user)) ? CommandRequest.RequestStatus.APPROVED : CommandRequest.RequestStatus.DENIED;
                     else if(level==2)
-                        request.status = (user.isOp()||user.hasVoice()) ? CommandRequest.RequestStatus.APPROVED : CommandRequest.RequestStatus.DENIED;
+                        request.status = (user.isOp()||user.hasVoice()||CREATOR.contains(user)) ? CommandRequest.RequestStatus.APPROVED : CommandRequest.RequestStatus.DENIED;
                     else if(level>=3)
                         request.status = CommandRequest.RequestStatus.APPROVED;
                     this.requestedCommands.add(request);
@@ -485,6 +488,11 @@ public class Rommie extends PircBot {
                 log("Disconnect command issued");
                 disconnect();
                 System.exit(0);
+            }
+            else if (message.startsWith(".me") && CREATOR.contains(sender)){
+                int starting_point = message.indexOf(".me")+".me ".length();
+                String message_to_send = message.substring(starting_point).trim();
+                sendAction(MESSAGE_CHANNEL, message_to_send);
             }
             //Relay
             else {
