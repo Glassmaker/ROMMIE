@@ -204,6 +204,12 @@ public class Rommie extends PircBot {
 
         //--------------------------------------------------------------------------------------------------------------
 
+        if(sender.equalsIgnoreCase("kihira") && message.contains("fox") && !message.contains(CMD_PREFIX)){
+            sendMessage(channel, Fox[generateRandom(Rommie.Fox.length)]);
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         //I'm a potato!
         if (message.contains("potato")  && !message.contains(CMD_PREFIX) && generateRandom(10) == 5){
             sendMessage(channel, "I'M A POTATO!");
