@@ -23,7 +23,7 @@ class RommieMain {
         Rommie bot = new Rommie();
 
         // Enable debugging output.
-        bot.setVerbose(true);
+        bot.setVerbose(false);
 
         // Connect to the IRC server.
         bot.connect(config.getProperty("server"), Integer.parseInt(config.getProperty("port")));
@@ -34,8 +34,8 @@ class RommieMain {
         // Join channels.
         bot.joinChannel("#StoneWaves");
         bot.joinChannel("#Rommie");
-        bot.joinChannel("#FetishCraft");
-        bot.joinChannel("#Kihira");
+        //bot.joinChannel("#FetishCraft");
+        //bot.joinChannel("#Kihira");
 
     }
 }

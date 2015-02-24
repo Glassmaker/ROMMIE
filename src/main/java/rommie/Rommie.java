@@ -6,12 +6,14 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.management.ThreadInfo;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.sun.xml.internal.ws.resources.SenderMessages;
 import org.jibble.pircbot.Colors;
 import org.jibble.pircbot.PircBot;
 import org.jibble.pircbot.User;
@@ -30,14 +32,20 @@ public class Rommie extends PircBot {
     private static ArrayList<String> CREATOR = new ArrayList<>(Arrays.asList(RommieMain.config.get("CREATOR").toString().split(",")));
     //private static String CREATOR = RommieMain.config.getProperty("CREATOR");
     public static String CMD_PREFIX = RommieMain.config.getProperty("CMD_PREFIX");
-    private String MESSAGE_CHANNEL = RommieMain.config.getProperty("MESSAGE_CHANNEL");
+
     public static final String DATA_PATH = RommieMain.config.getProperty("DATA_PATH");
 
     private final DateFormat dateFormatTime = new SimpleDateFormat("HH:mm:ss");
     private final Date DATE = new Date();
     private boolean USER_EXISTS = false;
     private boolean USER_ACTIVE = false;
+    private boolean PM_APPROVED = false;
+
     private final HashMap<String, User[]> channelUserList = new HashMap<>();
+
+    private String MESSAGE_CHANNEL_STONEWAVES = RommieMain.config.getProperty("MESSAGE_CHANNEL");
+    private String MESSAGE_CHANNEL_BLUSUNRISE = RommieMain.config.getProperty("MESSAGE_CHANNEL");
+    private String MESSAGE_CHANNEL_CANDICE = RommieMain.config.getProperty("MESSAGE_CHANNEL");
 
 
 
@@ -69,13 +77,14 @@ public class Rommie extends PircBot {
             "http://www.natursidan.se/wp-content/uploads/2013/04/K2_Hermann_Hirsch_Abendidylle.jpg"
     };
 
+    String account = "";
+
     /** Saves the currently pending command requests, to be handled next tick.
      */
     public List<CommandRequest> requestedCommands = new ArrayList<CommandRequest>();
     /** The list of commands Rommie can perform
      */
     public List<CommandBase> commands = new ArrayList<CommandBase>();
-
 
 
     //Main Rommie method
@@ -172,10 +181,19 @@ public class Rommie extends PircBot {
         //--------------------------------------------------------------------------------------------------------------
 
         //Send message to CREATOR 0 (StoneWaves) from specified channel
-        if (channel.equalsIgnoreCase(MESSAGE_CHANNEL)) {
+        if (channel.equalsIgnoreCase(MESSAGE_CHANNEL_STONEWAVES)) {
             //Creator 0 should be StoneWaves
             sendMessage(CREATOR.get(0), dateFormatTime.format(DATE) + " " + channel + " <" + sender + "> " + message + "\n");
         }
+        if (channel.equalsIgnoreCase(MESSAGE_CHANNEL_BLUSUNRISE)) {
+            //Creator 1 should be BluSunrize
+            sendMessage(CREATOR.get(1), dateFormatTime.format(DATE) + " " + channel + " <" + sender + "> " + message + "\n");
+        }
+        if (channel.equalsIgnoreCase(MESSAGE_CHANNEL_CANDICE)) {
+            //Creator 2 should be Candice
+            sendMessage(CREATOR.get(2), dateFormatTime.format(DATE) + " " + channel + " <" + sender + "> " + message + "\n");
+        }
+
     }
 
     protected void onAction(String sender, String login, String hostname, String target, String action) {
@@ -299,12 +317,22 @@ public class Rommie extends PircBot {
                             user = u;
                     CommandRequest request = new CommandRequest(cc, user, channel, message);
                     int level = cc.getCommandLevel();
-                    if(level==0)
+                    if(level==0) {
                         this.sendMessage("NickServ", "info " + sender);
+                        if(account.equalsIgnoreCase("")){
+                            while(account.equalsIgnoreCase("")){
+                                Thread.sleep(500);
+                                System.out.println("Waiting for nickserv response");
+                            }
+                        }else{
+                            request.status = (CREATOR.contains(account)) ? CommandRequest.RequestStatus.APPROVED : CommandRequest.RequestStatus.DENIED;
+                            account = "";
+                        }
+                    }
                     else if(level==1)
-                        request.status = (user.isOp()||CREATOR.contains(user)) ? CommandRequest.RequestStatus.APPROVED : CommandRequest.RequestStatus.DENIED;
+                        request.status = (user.isOp()) ? CommandRequest.RequestStatus.APPROVED : CommandRequest.RequestStatus.DENIED;
                     else if(level==2)
-                        request.status = (user.isOp()||user.hasVoice()||CREATOR.contains(user)) ? CommandRequest.RequestStatus.APPROVED : CommandRequest.RequestStatus.DENIED;
+                        request.status = (user.isOp()||user.hasVoice()) ? CommandRequest.RequestStatus.APPROVED : CommandRequest.RequestStatus.DENIED;
                     else if(level>=3)
                         request.status = CommandRequest.RequestStatus.APPROVED;
                     this.requestedCommands.add(request);
@@ -314,8 +342,6 @@ public class Rommie extends PircBot {
 
             //TODO Transform all this into Commands
 			/*
-
-
             //----------------------------------------------------------------------------------------------------------
 
             //this is just an example; is silly and pointless XP
@@ -395,7 +421,8 @@ public class Rommie extends PircBot {
 
         String unformattedMessage = Colors.removeFormattingAndColors(notice);
         String name = "";
-        String account = "";
+        //Made Global
+        // String account = "";
 
         if(notice.contains("is not registered.") && sourceNick.equalsIgnoreCase("NickServ")){
             USER_EXISTS = false;
@@ -407,7 +434,7 @@ public class Rommie extends PircBot {
         //This tells me if a user exists with NickServ
         else if(notice.contains("Information on") && notice.contains(CHECK_USER)){
             USER_EXISTS = true;
-            sendMessage(CHECK_CHANNEL, "User is registered");
+            sendMessage(CHECK_CHANNEL, "User is registered.");
 
             String keyPhrase = " (account ";
             int indx = unformattedMessage.indexOf(keyPhrase);
@@ -428,6 +455,7 @@ public class Rommie extends PircBot {
         for(CommandRequest request : this.requestedCommands)
             if(request.user.getNick().equalsIgnoreCase(name))
             {
+                sendMessage("#StoneWaves", "Account: "+account+", Creator: "+CREATOR+", match: "+CREATOR.contains(account));
                 System.out.println("Account: "+account+", Creator: "+CREATOR+", match: "+CREATOR.contains(account));
                 if(CREATOR.contains(account)){
                     request.status = CommandRequest.RequestStatus.APPROVED;
@@ -463,6 +491,7 @@ public class Rommie extends PircBot {
     //Called when the bot gets a PM
     protected void onPrivateMessage(String sender, String login, String hostname, String message) {
 
+
         //Log all the things
         new File(DATA_PATH + sender).mkdirs();
         new File(DATA_PATH).mkdirs();
@@ -473,40 +502,75 @@ public class Rommie extends PircBot {
 
         //--------------------------------------------------------------------------------------------------------------
 
-        //Chat relay for PM's
-        if (CREATOR.contains(sender)) {
-            //Channel switch
-            if (message.startsWith("#")) {
-                MESSAGE_CHANNEL = message;
-            }
-            //Kill command
-            else if (message.startsWith(CMD_PREFIX + "disconnect") && CREATOR.contains(sender) && arguments[1].equalsIgnoreCase(POTATO)){
-                String[] channels = getChannels();
-                for (String channel : channels) {
-                    sendMessage(channel, "Quitting IRC ");
+        this.sendMessage("NickServ", "info " + sender);
+        if(account.equalsIgnoreCase("")){
+            int NICKSERV_TIMEOUT = 0;
+            while(account.equalsIgnoreCase("") && NICKSERV_TIMEOUT < 10){
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-                log("Disconnect command issued");
-                disconnect();
-                System.exit(0);
+                System.out.println("Waiting for nickserv response");
+                NICKSERV_TIMEOUT++;
             }
-            else if (message.startsWith(".me") && CREATOR.contains(sender)){
-                int starting_point = message.indexOf(".me")+".me ".length();
-                String message_to_send = message.substring(starting_point).trim();
-                sendAction(MESSAGE_CHANNEL, message_to_send);
-            }
-            //Relay
-            else {
-                sendMessage(MESSAGE_CHANNEL, message);
-            }
+        }else{
+            PM_APPROVED = true;
+            //account = "";
         }
 
+        //What if our account is on the CREATOR list
+        if (CREATOR.contains(account)) {
+            //Channel switch
+            if (message.startsWith("#") &&  account.equalsIgnoreCase("StoneWaves")) {
+                MESSAGE_CHANNEL_STONEWAVES = message;
+            }
+            else if (message.startsWith("#") &&  account.equalsIgnoreCase("BluSunrize")) {
+                MESSAGE_CHANNEL_BLUSUNRISE = message;
+            }
+            else if (message.startsWith("#") &&  account.equalsIgnoreCase("Candice")) {
+                MESSAGE_CHANNEL_CANDICE = message;
+            }
+
+            //Send messages and receive messages
+            if (account.equalsIgnoreCase("StoneWaves")) {
+                pm_Relay(MESSAGE_CHANNEL_STONEWAVES, message, arguments);
+            }
+            else if (account.equalsIgnoreCase("BluSunrize")) {
+                pm_Relay(MESSAGE_CHANNEL_BLUSUNRISE, message, arguments);
+            }
+            else if (account.equalsIgnoreCase("Candice")) {
+                pm_Relay(MESSAGE_CHANNEL_CANDICE, message, arguments);
+            }
+        }
         //What if you arent the creator
-        else {
+        else{
             sendMessage(sender, "I am not authorised to talk to you");
-            for(int i = 0; i> CREATOR.size(); i++)
-                sendMessage(CREATOR.get(i), "PM form "+ sender + " - " +message);
+            account = "";
+            for (int i = 0; i > CREATOR.size(); i++)
+                sendMessage(CREATOR.get(i), "PM form " + sender + " - " + message);
         }
+    }
 
+    //Called from onPrivateMessage
+    private void pm_Relay(String MESSAGE_CHANNEL, String message, String[] arguments){
+        if (message.startsWith(CMD_PREFIX + "disconnect") && CREATOR.contains(account) && arguments[1].equalsIgnoreCase(POTATO)) {
+            String[] channels = getChannels();
+            for (String channel : channels) {
+                sendMessage(channel, "Quitting IRC ");
+            }
+            log("Disconnect command issued");
+            disconnect();
+            System.exit(0);
+        } else if (message.startsWith(".me") && CREATOR.contains(account)) {
+            int starting_point = message.indexOf(".me") + ".me ".length();
+            String message_to_send = message.substring(starting_point).trim();
+            sendAction(MESSAGE_CHANNEL, message_to_send);
+        }
+        //Relay
+        else {
+            sendMessage(MESSAGE_CHANNEL, message);
+        }
     }
 
     //What to do when someone joins a channel (Bot & other users)
@@ -557,6 +621,7 @@ public class Rommie extends PircBot {
         }
     }
 
+    //What is done when we get kicked
     //What is done when we get kicked
     protected void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason){
 

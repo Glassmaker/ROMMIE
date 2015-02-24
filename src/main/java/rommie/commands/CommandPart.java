@@ -16,7 +16,7 @@ public class CommandPart extends CommandBase {
 			this.sendUsageMessage(channel, instance);
 		} else {
 			instance.sendMessage(channel, "Leaving channel as commanded");
-            Thread.currentThread().sleep(1000);
+            Thread.currentThread().sleep(2000);
             instance.partChannel(channel);
 		}
 	}
