@@ -18,9 +18,11 @@ import org.jibble.pircbot.Colors;
 import org.jibble.pircbot.PircBot;
 import org.jibble.pircbot.User;
 
+import org.json.simple.parser.ParseException;
 import rommie.commands.CommandBase;
 import rommie.commands.CommandRequest;
 import rommie.modules.Logger.Logging;
+import rommie.modules.SourceCodedWallpapers.GetWallpaper;
 
 public class Rommie extends PircBot {
 
@@ -46,10 +48,6 @@ public class Rommie extends PircBot {
     private String MESSAGE_CHANNEL_STONEWAVES = RommieMain.config.getProperty("MESSAGE_CHANNEL");
     private String MESSAGE_CHANNEL_BLUSUNRISE = RommieMain.config.getProperty("MESSAGE_CHANNEL");
     private String MESSAGE_CHANNEL_CANDICE = RommieMain.config.getProperty("MESSAGE_CHANNEL");
-
-
-
-
 
     //Config variables
     private boolean STATE_PREFIX = false;
@@ -171,7 +169,11 @@ public class Rommie extends PircBot {
         //--------------------------------------------------------------------------------------------------------------
 
         //Toggle configs
-        config(channel, sender, message);
+        try {
+            config(channel, sender, message);
+        } catch (IOException | InterruptedException | ParseException e) {
+            e.printStackTrace();
+        }
 
         //--------------------------------------------------------------------------------------------------------------
 
@@ -211,7 +213,7 @@ public class Rommie extends PircBot {
     void generalMessage(String channel, String sender, String message){
 
         //Quack like a duck
-        if (message.contains("quack") | message.contains("Quack") && !message.contains(CMD_PREFIX) && generateRandom(10) == 5) {
+        if (message.contains("quack") | message.contains("Quack") && !message.contains(CMD_PREFIX) && generateRandom(5) == 5) {
             sendMessage(channel, "Quack, Quack.");
             sendMessage(channel, "I'm a duck!");
         }
@@ -235,11 +237,18 @@ public class Rommie extends PircBot {
         if (message.contains("potato")  && !message.contains(CMD_PREFIX) && generateRandom(10) == 5){
             sendMessage(channel, "I'M A POTATO!");
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        //I'm a potato!
+        if (message.contains("boobs")  && !message.contains(CMD_PREFIX) && sender.equalsIgnoreCase("joshie")){
+            sendAction(channel, "gives " + sender  + " boobs.");
+        }
     }
 
     //Commands to change configs
     //Called from onMessage
-    void config(String channel, String sender, String message){
+    void config(String channel, String sender, String message) throws IOException, InterruptedException, ParseException {
         if (message.startsWith(CMD_PREFIX)) {
             message = message.substring(CMD_PREFIX.length()); //Strips command prefix
 
@@ -287,6 +296,15 @@ public class Rommie extends PircBot {
                 POTATO_MESSAGE = !POTATO_MESSAGE;
                 sendMessage(channel, "Random potatoes have been toggled to " + POTATO_MESSAGE);
             }
+
+            //----------------------------------------------------------------------------------------------------------
+
+            //Turns on / off Random potatoes
+            if (command.equalsIgnoreCase("foximage")) {
+                GetWallpaper.getWallpaper();
+               sendMessage(channel, GetWallpaper.webpage());
+               //GetWallpaper.getWallpaper();
+            }
         }
     }
 
@@ -320,9 +338,15 @@ public class Rommie extends PircBot {
                     if(level==0) {
                         this.sendMessage("NickServ", "info " + sender);
                         if(account.equalsIgnoreCase("")){
-                            while(account.equalsIgnoreCase("")){
-                                Thread.sleep(500);
+                            int NICKSERV_TIMEOUT = 0;
+                            while(account.equalsIgnoreCase("") && NICKSERV_TIMEOUT < 10){
+                                try {
+                                    Thread.sleep(500);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                                 System.out.println("Waiting for nickserv response");
+                                NICKSERV_TIMEOUT++;
                             }
                         }else{
                             request.status = (CREATOR.contains(account)) ? CommandRequest.RequestStatus.APPROVED : CommandRequest.RequestStatus.DENIED;
@@ -342,21 +366,6 @@ public class Rommie extends PircBot {
 
             //TODO Transform all this into Commands
 			/*
-            //----------------------------------------------------------------------------------------------------------
-
-            //this is just an example; is silly and pointless XP
-            //usage is "tell person message"
-            if (command.equalsIgnoreCase("tell")) {
-                if (arguments.length < 3) {
-                    sendMessage(channel, "Usage : " + CMD_PREFIX + "tell <User> <Message>");
-                } else {
-                    int starting_point = message.indexOf(arguments[1]) + arguments[1].length() + 1;
-                    String message_to_send = message.substring(starting_point);
-                    sendMessage(channel, arguments[1] + ": " + message_to_send);
-                }
-            }
-            //----------------------------------------------------------------------------------------------------------
-
             //Sets the command prefix
             //Called by sending "prefix <new prefix>" with the CMD_PREFIX appended
             if (command.equalsIgnoreCase("prefix") & sender.equalsIgnoreCase(CREATOR)) {
@@ -368,21 +377,6 @@ public class Rommie extends PircBot {
                     for (String ignored : channels) {
                         sendMessage(channel, "My command prefix has been changed to " + CMD_PREFIX);
                     }
-                }
-            }
-
-            //----------------------------------------------------------------------------------------------------------
-
-            //Changes the topic of a Channel
-            ///Called by sending "topic <new topic>" with the CMD_PREFIX appended
-            if (command.equalsIgnoreCase("topic") && sender.equals(CREATOR)) {
-                if (arguments.length < 2) {
-                    sendMessage(channel, "Usage : " + CMD_PREFIX + "topic <Topic>");
-                } else {
-                    int starting_point = message.indexOf(arguments[1]) + 1;
-                    String message_to_send = message.substring(starting_point);
-
-                    setTopic(channel, arguments[1] + "  " + message_to_send);
                 }
             }
 			 */
