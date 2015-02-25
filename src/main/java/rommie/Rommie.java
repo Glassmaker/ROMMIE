@@ -248,7 +248,7 @@ public class Rommie extends PircBot {
         //--------------------------------------------------------------------------------------------------------------
         
         //I'm a penguin!
-        if (message.contains("joshie") && generateRandom(3) == 1) {
+        if (message.contains("joshie") && generateRandom(7) == 3) {
             sendMessage(channel, "Noot Noot!");
         }
     }
