@@ -240,9 +240,16 @@ public class Rommie extends PircBot {
 
         //--------------------------------------------------------------------------------------------------------------
 
-        //I'm a potato!
+        //I'm a boob!
         if (message.contains("boobs")  && !message.contains(CMD_PREFIX) && sender.equalsIgnoreCase("joshie")){
             sendAction(channel, "gives " + sender  + " boobs.");
+        }
+        
+        //--------------------------------------------------------------------------------------------------------------
+        
+        //I'm a penguin!
+        if (message.contains("joshie") && generateRandom(3) == 1) {
+            sendMessage(channel, "Noot Noot!");
         }
     }
 
