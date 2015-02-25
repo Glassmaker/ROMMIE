@@ -20,7 +20,7 @@ public class CommandPenguin extends CommandBase {
 		else{
 			int starting_point = message.indexOf("penguin")+"penguin ".length();
 			String message_to_send = message.substring(starting_point).trim();
-			instance.sendAction(channel, "turns " + message_to_send + " in to his penguin slave.");
+			instance.sendAction(channel, "turns " + message_to_send + " into his penguin slave.");
 		}
 	}
 
