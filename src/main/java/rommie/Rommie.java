@@ -23,6 +23,7 @@ import rommie.commands.CommandBase;
 import rommie.commands.CommandRequest;
 import rommie.modules.Logger.Logging;
 import rommie.modules.SourceCodedWallpapers.GetWallpaper;
+import rommie.modules.SourceCodedWallpapers.Submit;
 
 public class Rommie extends PircBot {
 
@@ -98,8 +99,8 @@ public class Rommie extends PircBot {
         {
             public void run()
             {
-                //TODO Do something when timer is complete
                 sendMessage("#StoneWaves", "The next event has been scheduled for " + NEXT_TIMER + " minutes form now.");
+                sendMessage("#kihira", "Daily fox time!");
                 sendMessage("#kihira", Fox[foxArrayCount]);
                 foxArrayCount = foxArrayCount + 1;
                 //Picks a random minute delay up to a day
@@ -221,7 +222,7 @@ public class Rommie extends PircBot {
         //--------------------------------------------------------------------------------------------------------------
 
         //Random fox image
-        if (message.contains("fox") && !message.contains(CMD_PREFIX) && generateRandom(10) == 5) {
+        if (message.contains("fox") && !message.contains(CMD_PREFIX) && generateRandom(20) == 5) {
             sendMessage(channel, Fox[generateRandom(Rommie.Fox.length)]);
         }
 
@@ -250,6 +251,13 @@ public class Rommie extends PircBot {
         //I'm a penguin!
         if (message.contains("joshie") && generateRandom(7) == 3) {
             sendMessage(channel, "Noot Noot!");
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        //#notAtPAX
+        if (message.contains("pax") && generateRandom(4) == 3) {
+            sendMessage(channel, "I'm #notAtPax");
         }
     }
 
@@ -306,11 +314,18 @@ public class Rommie extends PircBot {
 
             //----------------------------------------------------------------------------------------------------------
 
-            //Turns on / off Random potatoes
+            //Test command for community wallpapers retrieval
             if (command.equalsIgnoreCase("foximage")) {
                 GetWallpaper.getWallpaper();
                sendMessage(channel, GetWallpaper.webpage());
                //GetWallpaper.getWallpaper();
+            }
+
+            //----------------------------------------------------------------------------------------------------------
+
+            ////Test command for community wallpapers upload
+            if (command.equalsIgnoreCase("uploadfox")) {
+                Submit.Submit(message, arguments);
             }
         }
     }

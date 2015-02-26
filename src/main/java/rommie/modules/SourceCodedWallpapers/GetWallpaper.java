@@ -18,13 +18,12 @@ public class GetWallpaper {
 
     public static String getWallpaper() throws InterruptedException {
 
+        //TODO Clean up this code and get rid of all the logging and file outputs
         HttpURLConnection connection = null;
-        String targetURL = "http://fox.chrisallen.me.uk/index.php";
-        String urlParameters = "";
 
         try {
             // get URL content
-            URL url = new URL("http://fox.chrisallen.me.uk");
+            URL url = new URL("http://fox.chrisallen.me.uk/index.php");
             URLConnection conn = url.openConnection();
 
             // open the stream and put it into BufferedReader
