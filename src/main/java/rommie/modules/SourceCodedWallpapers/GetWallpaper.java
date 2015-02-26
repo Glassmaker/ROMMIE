@@ -32,30 +32,14 @@ public class GetWallpaper {
 
             String inputLine;
 
-            //save to this filename
-            String fileName = "./source.txt";
-            File file = new File(fileName);
-
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-
             //use FileWriter to write file
-            FileWriter fw = new FileWriter(file.getAbsoluteFile());
-            BufferedWriter bw = new BufferedWriter(fw);
-
             while ((inputLine = br.readLine()) != null) {
-                bw.write(inputLine);
-                System.out.println(inputLine);
                 if(inputLine.contains("url")){
                     webPage = inputLine;
                 }
             }
 
-            bw.close();
             br.close();
-
-            System.out.println("Done ----------------------------------------------");
 
         } catch (Exception e) {
 
@@ -74,19 +58,11 @@ public class GetWallpaper {
     public static String webpage() throws ParseException {
         String page = webPage.replaceAll("</body>", "");
 
-
-
         JSONParser jsonParser = new JSONParser();
 
         JSONObject jsonObject = (JSONObject) jsonParser.parse(page);
         String url = (String) jsonObject.get("url");
         System.out.println(url);
-
-
-
-
-
-
 
         return url;
     }
